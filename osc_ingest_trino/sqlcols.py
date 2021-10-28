@@ -6,9 +6,9 @@ _usdedup = re.compile(r"__+")
 _rmpunc = re.compile(r"[,.()&$/+-]+")
 
 # 63 seems to be a common max column name length
-def valid_sql_column_name(name, maxlen=63):
+def sql_compliant_name(name, maxlen=63):
     if isinstance(name, list):
-        return [valid_sql_column_name(e) for e in name]
+        return [sql_compliant_name(e, maxlen=maxlen) for e in name]
     w = str(name).casefold().rstrip().lstrip()
     w = w.replace("-", "_")
     w = _rmpunc.sub("", w)
@@ -29,11 +29,11 @@ def valid_sql_column_name(name, maxlen=63):
     w = w[:maxlen] 
     return w
 
-def valid_sql_pandas_columns(df, inplace=False, maxlen=63):
+def enforce_sql_column_names(df, inplace=False, maxlen=63):
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     icols = df.columns.to_list()
-    ocols = valid_sql_column_name(icols, maxlen=maxlen)
+    ocols = sql_compliant_name(icols, maxlen=maxlen)
     if (len(set(ocols)) < len(ocols)):
         raise ValueError("remapped column names were not unique!")
     rename_map = dict(list(zip(icols, ocols))))
