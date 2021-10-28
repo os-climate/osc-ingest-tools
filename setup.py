@@ -1,6 +1,6 @@
 import pathlib
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).resolve().parent
@@ -24,9 +24,9 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
     ],
-    packages = ["osc_ingest_trino"],
+    packages = find_packages(),
     include_package_data = True,
-    install_requires = [],
+    install_requires = ["pandas"],
     entry_points = {
         "console_scripts": []
     },
