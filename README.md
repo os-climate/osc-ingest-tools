@@ -58,6 +58,16 @@ memory usage: 179.0 bytes
 >>> 
 ```
 
+### build and upload a new release
+
+- update all occurrences of `__version__`
+- `python3 setup.py clean`
+- `python3 setup.py sdist`
+- `twine check dist/*`
+- `twine upload dist/*`
+- push latest to repo
+- create new release on github
+
 ### python packaging resources
 
 - https://packaging.python.org/
