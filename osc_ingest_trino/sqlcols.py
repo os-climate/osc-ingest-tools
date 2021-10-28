@@ -1,6 +1,11 @@
 import re
 import pandas as pd
 
+__all__ = [
+    "sql_compliant_name",
+    "enforce_sql_column_names",
+]
+
 _wsdedup = re.compile(r"\s+")
 _usdedup = re.compile(r"__+")
 _rmpunc = re.compile(r"[,.()&$/+-]+")
@@ -36,6 +41,6 @@ def enforce_sql_column_names(df, inplace=False, maxlen=63):
     ocols = sql_compliant_name(icols, maxlen=maxlen)
     if (len(set(ocols)) < len(ocols)):
         raise ValueError("remapped column names were not unique!")
-    rename_map = dict(list(zip(icols, ocols))))
+    rename_map = dict(list(zip(icols, ocols)))
     return df.rename(columns=rename_map, inplace=inplace)
 

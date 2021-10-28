@@ -1,5 +1,10 @@
 import pandas as pd
 
+__all__ = [
+    "pandas_type_to_sql",
+    "create_table_schema_pairs",
+]
+
 _p2smap = {
     'string': 'varchar',
     'float32': 'real',
