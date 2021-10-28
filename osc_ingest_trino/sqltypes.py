@@ -2,8 +2,16 @@ import pandas as pd
 
 _p2smap = {
     'string': 'varchar',
+    'float32': 'real',
+    'Float32': 'real',
+    'float64': 'double',
     'Float64': 'double',
-    'Int64': 'bigint'
+    'int32': 'integer',
+    'Int32': 'integer',
+    'int64': 'bigint',
+    'Int64': 'bigint',
+    'category': 'varchar',
+    'datetime64[ns, UTC]': 'timestamp'
 }
 
 def pandas_type_to_sql(pt):
@@ -21,5 +29,4 @@ def create_table_schema_pairs(df):
     stypes = [pandas_type_to_sql(e) for e in ptypes]
     pz = list(zip(df.columns.to_list(), stypes))
     return ",\n".join(["    {n} {t}".format(n=e[0],t=e[1]) for e in pz])
-
 
