@@ -6,6 +6,7 @@ __all__ = [
 ]
 
 _p2smap = {
+    'object': 'varchar',
     'string': 'varchar',
     'float32': 'real',
     'Float32': 'real',
@@ -17,6 +18,7 @@ _p2smap = {
     'Int64': 'bigint',
     'category': 'varchar',
     'datetime64[ns, UTC]': 'timestamp',
+    'datetime64[ns]': 'timestamp'
 }
 
 def pandas_type_to_sql(pt):
