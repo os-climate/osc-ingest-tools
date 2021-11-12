@@ -5,7 +5,7 @@ python tools to assist with standardized data ingestion workflows for the OS-Cli
 """
 
 # defines the release version for this python package
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from .sqlcols import *
 from .sqltypes import *
