@@ -6,7 +6,6 @@ __all__ = [
 ]
 
 _p2smap = {
-    'object': 'varchar',
     'string': 'varchar',
     'float32': 'real',
     'Float32': 'real',
@@ -16,6 +15,7 @@ _p2smap = {
     'Int32': 'integer',
     'int64': 'bigint',
     'Int64': 'bigint',
+    'bool': 'boolean',
     'category': 'varchar',
     'datetime64[ns, UTC]': 'timestamp',
     'datetime64[ns]': 'timestamp'
