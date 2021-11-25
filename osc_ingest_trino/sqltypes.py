@@ -17,8 +17,7 @@ _p2smap = {
     'Int64': 'bigint',
     'bool': 'boolean',
     'category': 'varchar',
-    'datetime64[ns, UTC]': 'timestamp',
-    'datetime64[ns]': 'timestamp'
+    'datetime64[ns, UTC]': 'timestamp'
 }
 
 def pandas_type_to_sql(pt):
