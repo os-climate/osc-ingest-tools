@@ -1,8 +1,11 @@
 import os
-import shutili
+import shutil
 import uuid
 import trino
+import pandas as pd
 from sqlalchemy.engine import create_engine
+
+from .boto3_utils import upload_directory_to_s3
 
 __all__ = [
     "attach_trino_engine",
@@ -10,6 +13,17 @@ __all__ = [
     "drop_unmanaged_data",
     "ingest_unmanaged_parquet",
 ]
+
+_default_prefix = 'trino/{schema}/{table}'
+
+def _remove_trailing_slash(s):
+    s = str(s)
+    if len(s) == 0: return s
+    if (s[-1] != '/'): return s
+    return _remove_trailing_slash(s[:-1])
+
+def _prefix(pfx, schema, table):
+    return _remove_trailing_slash(pfx).format(schema = schema, table = table)
 
 def attach_trino_engine():
     sqlstring = 'trino://{user}@{host}:{port}/'.format(
@@ -25,33 +39,33 @@ def attach_trino_engine():
     connection = engine.connect()
     return engine
 
-def drop_unmanaged_table(catalog, schema, table, engine, bucket, prefix='trino/{schema}/{table}/', verbose=False):
+def drop_unmanaged_table(catalog, schema, table, engine, bucket, prefix=_default_prefix, verbose=False):
     sql = f'drop table if exists {catalog}.{schema}.{table}'
     qres = engine.execute(sql)
     dres = bucket.objects \
-        .filter(Prefix=(prefix.format(schema=schema,table=table))) \
+        .filter(Prefix = f'{_prefix(prefix, schema, table)}/') \
         .delete()
     if verbose:
         print(dres)
     return qres
 
-def drop_unmanaged_data(schema, table, bucket, prefix='trino/{schema}/{table}/', verbose=False):
+def drop_unmanaged_data(schema, table, bucket, prefix=_default_prefix, verbose=False):
     dres = bucket.objects \
-        .filter(Prefix = (prefix.format(schema = schema, table = table))) \
+        .filter(Prefix = f'{_prefix(prefix, schema, table)}/') \
         .delete()
     if verbose: print(dres)
     return dres
 
-def ingest_unmanaged_parquet(df, schema, table, bucket, partition_columns=[], append=True, workdir='/tmp', prefix='trino/{schema}/{table}/', verbose=False):
+def ingest_unmanaged_parquet(df, schema, table, bucket, partition_columns=[], append=True, workdir='/tmp', prefix=_default_prefix, verbose=False):
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(partition_columns, list):
         raise ValueError("partition_columns must be list of column names")
 
-    s3pfx = prefix.format(schema = schema, table = table)
+    s3pfx = _prefix(prefix, schema, table)
 
     if not append:
-        dres = bucket.objects.filter(Prefix = s3pfx).delete() 
+        dres = bucket.objects.filter(Prefix = f'{s3pfx}/').delete() 
         if verbose: print(dres)
 
     if len(partition_columns) > 0:

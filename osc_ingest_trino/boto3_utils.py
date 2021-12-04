@@ -7,8 +7,6 @@ __all__ = [
 ]
 
 def upload_directory_to_s3(path, bucket, prefix, verbose=False):
-    if not isinstance(bucket, boto3.resources.factory.s3.Bucket):
-        raise(ValueError("bucket must be a boto3 Bucket")
     path = str(path)
     prefix = str(prefix)
     for subdir, dirs, files in os.walk(path):
