@@ -28,14 +28,14 @@ def _remove_trailing_slash(s):
 def _prefix(pfx, schema, table):
     return _remove_trailing_slash(pfx).format(schema = schema, table = table)
 
-def attach_trino_engine():
+def attach_trino_engine(env_var_prefix = 'TRINO'):
     sqlstring = 'trino://{user}@{host}:{port}/'.format(
-        user = os.environ['TRINO_USER'],
-        host = os.environ['TRINO_HOST'],
-        port = os.environ['TRINO_PORT']
+        user = os.environ[f'{env_var_prefix}_USER'],
+        host = os.environ[f'{env_var_prefix}_HOST'],
+        port = os.environ[f'{env_var_prefix}_PORT']
     )
     sqlargs = {
-        'auth': trino.auth.JWTAuthentication(os.environ['TRINO_PASSWD']),
+        'auth': trino.auth.JWTAuthentication(os.environ[f'{env_var_prefix}_PASSWD']),
         'http_scheme': 'https'
     }
     engine = create_engine(sqlstring, connect_args = sqlargs)
