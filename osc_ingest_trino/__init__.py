@@ -5,7 +5,7 @@ python tools to assist with standardized data ingestion workflows for the OS-Cli
 """
 
 # defines the release version for this python package
-__version__ = "0.2.0rc6"
+__version__ = "0.2.0"
 
 from .sqlcols import *
 from .sqltypes import *
@@ -26,5 +26,6 @@ __all__ = [
     "drop_unmanaged_table",
     "drop_unmanaged_data",
     "ingest_unmanaged_parquet",
+    "unmanaged_parquet_tabledef",
 ]
 

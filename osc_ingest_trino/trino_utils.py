@@ -1,17 +1,20 @@
 import os
 import shutil
 import uuid
+
 import trino
 import pandas as pd
 from sqlalchemy.engine import create_engine
 
 from .boto3_utils import upload_directory_to_s3
+from .sqltypes import create_table_schema_pairs
 
 __all__ = [
     "attach_trino_engine",
     "drop_unmanaged_table",
     "drop_unmanaged_data",
     "ingest_unmanaged_parquet",
+    "unmanaged_parquet_tabledef",
 ]
 
 _default_prefix = 'trino/{schema}/{table}'
@@ -86,4 +89,22 @@ def ingest_unmanaged_parquet(df, schema, table, bucket, partition_columns=[], ap
         dst = f'{s3pfx}/{parquet}'
         if verbose: print(f'{tmp}  -->  {dst}')
         bucket.upload_file(tmp, dst)
+
+def unmanaged_parquet_tabledef(df, catalog, schema, table, bucket, partition_columns = [], verbose = False):
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("df must be a pandas DataFrame")
+    if not isinstance(partition_columns, list):
+        raise ValueError("partition_columns must be list of column names")
+
+    columnschema = create_table_schema_pairs(df)
+
+    tabledef = f"create table if not exists {catalog}.{schema}.{table} (\n"
+    tabledef += f"{columnschema}\n"
+    tabledef += ") with (\n    format = 'parquet',\n"
+    if len(partition_columns) > 0:
+        tabledef += f"    partitioned_by = array{partition_columns},\n"
+    tabledef += f"    external_location = 's3a://{bucket.name}/trino/{schema}/{table}/'\n)"
+
+    if verbose: print(tabledef)
+    return tabledef
 
