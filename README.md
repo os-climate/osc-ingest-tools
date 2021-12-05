@@ -94,6 +94,9 @@ memory usage: 176.0+ bytes
 - push latest to repo
 - create new release on github
 
+upload test or release candidate:
+- twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
 ### python packaging resources
 
 - https://packaging.python.org/
