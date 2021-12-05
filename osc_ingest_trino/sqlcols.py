@@ -4,6 +4,7 @@ import pandas as pd
 __all__ = [
     "sql_compliant_name",
     "enforce_sql_column_names",
+    "enforce_partition_column_order",
 ]
 
 _wsdedup = re.compile(r"\s+")
@@ -44,3 +45,19 @@ def enforce_sql_column_names(df, inplace=False, maxlen=63):
     rename_map = dict(list(zip(icols, ocols)))
     return df.rename(columns=rename_map, inplace=inplace)
 
+def enforce_partition_column_order(df, pcols, inplace=False):
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("df must be a pandas DataFrame")
+    if not isinstance(pcols, list):
+        raise ValueError("pcols must be list of column names")
+    pcols = [str(e) for e in pcols]
+    cols = list(df.columns.values)
+    for c in pcols:
+        cols.remove(c)
+        cols.append(c)
+    if not inplace:
+        return df[cols]
+    for c in cols:
+        s = df[c]
+        df.drop(columns=[c], inplace=True)
+        df[c] = s

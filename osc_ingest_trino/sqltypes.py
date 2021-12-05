@@ -29,13 +29,11 @@ def pandas_type_to_sql(pt, typemap={}):
         return st
     raise ValueError("unexpected pandas column type '{pt}'".format(pt=pt))
 
-# add ability to specify optional dict for specific fields?
-# if column name is present, use specified value?
-def create_table_schema_pairs(df, typemap={}):
+def create_table_schema_pairs(df, typemap = {}, indent = 4):
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     ptypes = [str(e) for e in df.dtypes.to_list()]
     stypes = [pandas_type_to_sql(e, typemap=typemap) for e in ptypes]
     pz = list(zip(df.columns.to_list(), stypes))
-    return ",\n".join(["    {n} {t}".format(n=e[0],t=e[1]) for e in pz])
+    return ",\n".join([f"{' '*indent}{e[0]} {e[1]}" for e in pz])
 
