@@ -28,16 +28,26 @@ def _remove_trailing_slash(s):
 def _prefix(pfx, schema, table):
     return _remove_trailing_slash(pfx).format(schema = schema, table = table)
 
-def attach_trino_engine(env_var_prefix = 'TRINO'):
-    sqlstring = 'trino://{user}@{host}:{port}/'.format(
+def attach_trino_engine(env_var_prefix = 'TRINO', catalog = None, schema = None, verbose = False):
+    sqlstring = 'trino://{user}@{host}:{port}'.format(
         user = os.environ[f'{env_var_prefix}_USER'],
         host = os.environ[f'{env_var_prefix}_HOST'],
         port = os.environ[f'{env_var_prefix}_PORT']
     )
+    if catalog is not None:
+        sqlstring += f'/{catalog}'
+    if schema is not None:
+        if catalog is None:
+            raise ValueError(f'connection schema specified without a catalog')
+        sqlstring += f'/{schema}'
+
     sqlargs = {
         'auth': trino.auth.JWTAuthentication(os.environ[f'{env_var_prefix}_PASSWD']),
         'http_scheme': 'https'
     }
+
+    if verbose: print(f'using connect string: {sqlstring}')
+
     engine = create_engine(sqlstring, connect_args = sqlargs)
     connection = engine.connect()
     return engine
@@ -90,13 +100,16 @@ def ingest_unmanaged_parquet(df, schema, table, bucket, partition_columns=[], ap
         if verbose: print(f'{tmp}  -->  {dst}')
         bucket.upload_file(tmp, dst)
 
-def unmanaged_parquet_tabledef(df, catalog, schema, table, bucket, partition_columns = [], verbose = False):
+def unmanaged_parquet_tabledef(df, catalog, schema, table, bucket,
+                               partition_columns = [],
+                               typemap = {}, colmap = {},
+                               verbose = False):
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(partition_columns, list):
         raise ValueError("partition_columns must be list of column names")
 
-    columnschema = create_table_schema_pairs(df)
+    columnschema = create_table_schema_pairs(df, typemap=typemap, colmap=colmap)
 
     tabledef = f"create table if not exists {catalog}.{schema}.{table} (\n"
     tabledef += f"{columnschema}\n"
