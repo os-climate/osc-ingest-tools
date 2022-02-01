@@ -91,6 +91,8 @@ def ingest_unmanaged_parquet(df, schema, table, bucket, partition_columns=[], ap
                       index=False)
         # upload the tree onto S3
         upload_directory_to_s3(tmp, bucket, s3pfx, verbose=verbose)
+        if tmp.startswith('/tmp/'):
+            os.rmdir(tmp)
     else:
         # do not use partitions: a single parquet file is created
         parquet = f'{uuid.uuid4().hex}.parquet'
@@ -99,6 +101,10 @@ def ingest_unmanaged_parquet(df, schema, table, bucket, partition_columns=[], ap
         dst = f'{s3pfx}/{parquet}'
         if verbose: print(f'{tmp}  -->  {dst}')
         bucket.upload_file(tmp, dst)
+        if tmp.startswith('/tmp/'):
+            os.remove(tmp)
+    if verbose and tmp.startswith('/tmp/'):
+        print(f"removed {tmp}")
 
 def unmanaged_parquet_tabledef(df, catalog, schema, table, bucket,
                                partition_columns = [],
