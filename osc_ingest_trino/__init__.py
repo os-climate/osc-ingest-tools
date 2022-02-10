@@ -23,9 +23,5 @@ __all__ = [
     "upload_directory_to_s3",
     "load_credentials_dotenv",
     "attach_trino_engine",
-    "drop_unmanaged_table",
-    "drop_unmanaged_data",
-    "ingest_unmanaged_parquet",
-    "unmanaged_parquet_tabledef",
 ]
 
