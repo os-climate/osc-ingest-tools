@@ -23,5 +23,6 @@ __all__ = [
     "upload_directory_to_s3",
     "load_credentials_dotenv",
     "attach_trino_engine",
+    "TrinoBatchInsert",
 ]
 
