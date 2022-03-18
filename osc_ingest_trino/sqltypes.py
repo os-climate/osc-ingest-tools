@@ -6,19 +6,20 @@ __all__ = [
 ]
 
 _p2smap = {
-    'string': 'varchar',
-    'float32': 'real',
-    'Float32': 'real',
-    'float64': 'double',
-    'Float64': 'double',
-    'int32': 'integer',
-    'Int32': 'integer',
-    'int64': 'bigint',
-    'Int64': 'bigint',
-    'bool': 'boolean',
-    'category': 'varchar',
-    'datetime64[ns, UTC]': 'timestamp',
+    "string": "varchar",
+    "float32": "real",
+    "Float32": "real",
+    "float64": "double",
+    "Float64": "double",
+    "int32": "integer",
+    "Int32": "integer",
+    "int64": "bigint",
+    "Int64": "bigint",
+    "bool": "boolean",
+    "category": "varchar",
+    "datetime64[ns, UTC]": "timestamp",
 }
+
 
 def pandas_type_to_sql(pt, typemap={}):
     if not isinstance(typemap, dict):
@@ -29,7 +30,8 @@ def pandas_type_to_sql(pt, typemap={}):
         return st
     raise ValueError("unexpected pandas column type '{pt}'".format(pt=pt))
 
-def create_table_schema_pairs(df, typemap = {}, colmap = {}, indent = 4):
+
+def create_table_schema_pairs(df, typemap={}, colmap={}, indent=4):
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(colmap, dict):

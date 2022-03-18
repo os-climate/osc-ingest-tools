@@ -84,6 +84,36 @@ memory usage: 176.0+ bytes
 >>>
 ```
 
+### Development
+
+Patches may be contributed via pull requests to
+https://github.com/os-climate/osc-ingest-tools.
+
+All changes must pass the automated test suite, along with various static
+checks.
+
+The [Black](https://black.readthedocs.io/) code style is enforced.
+To ensure compliance with static check tools, developers may wish to run;
+```
+pip install black isort
+# auto-sort imports
+isort .
+# auto-format
+black .
+```
+
+Code can then be tested using tox.
+```
+# run static checks and tests
+tox
+# run only tests
+tox -e py3
+# run only static checks
+tox -e static
+# run tests and produce a code coverage report
+tox -e cov
+```
+
 ### build and upload a new release
 
 - update all occurrences of `__version__`
