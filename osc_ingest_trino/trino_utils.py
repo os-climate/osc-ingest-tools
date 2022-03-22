@@ -2,6 +2,7 @@ import os
 
 import trino
 from sqlalchemy.engine import create_engine
+from sqlalchemy.sql import text
 
 __all__ = [
     "attach_trino_engine",
@@ -32,6 +33,7 @@ def attach_trino_engine(env_var_prefix = 'TRINO', catalog = None, schema = None,
     connection = engine.connect()
     return engine
 
+
 class TrinoBatchInsert(object):
     def __init__(self,
         catalog = None,
@@ -50,20 +52,29 @@ class TrinoBatchInsert(object):
         batch = []
         for r in data_iter:
             # each row of data_iter is a python tuple
-            batch.append(str(r))
+            # I cannot currently make good use of sqlalchemy ':params'
+            # and so I have to do my own "manual" value formatting for insertions
+            row = ', '.join([TrinoBatchInsert._sqlform(e) for e in r])
+            row = f'({row})'
+            batch.append(row)
             # possible alternative: dispatch batches by total batch size in bytes
             if len(batch) >= self.batch_size:
-                self._do_insert(dbcxn, sqltbl, batch)
+                self._do_insert(dbcxn, sqltbl, columns, batch)
                 batch = []
         if len(batch) > 0:
-            self._do_insert(dbcxn, sqltbl, batch)
+            self._do_insert(dbcxn, sqltbl, columns, batch)
 
-    def _do_insert(self, dbcxn, sqltbl, batch_rows):
-        if self.verbose: print(f'inserting {len(batch_rows)} records')
-        valclause = ',\n'.join(batch_rows)
-        sql = f'insert into {self._full_table_name(sqltbl)} values\n{valclause}'
-        # could add something that prints only summary here, but
-        # generally too much data to print reasonably
+    def _do_insert(self, dbcxn, sqltbl, columns, batch):
+        if self.verbose:
+            print(f'inserting {len(batch)} records')
+            TrinoBatchInsert._print_batch(batch)
+        # trino is not currently supporting sqlalchemy cursor.executemany()
+        # and so I am generating an insert command with no ':params' that
+        # includes all batch data as literal sql values
+        valclause = ',\n'.join(batch)
+        # injecting raw sql strings is deprecated and will be illegal in sqlalchemy 2.x
+        # using text() is the correct way:
+        sql = text(f'insert into {self._full_table_name(sqltbl)} values\n{valclause}')
         #if self.verbose: print(f'{sql}')
         qres = dbcxn.execute(sql)
         x = qres.fetchall()
@@ -79,3 +90,21 @@ class TrinoBatchInsert(object):
             name = f'{self.catalog}.{name}'
         if self.verbose: print(f'constructed fully qualified table name as: "{name}"')
         return name
+
+    @staticmethod
+    def _sqlform(x):
+        if isinstance(x, str):
+            # escape any single quotes in the string
+            t = x.replace("'", "''")
+            # enclose string with single quotes
+            return f"'{t}'"
+        return str(x)
+
+    @staticmethod
+    def _print_batch(batch):
+        if len(batch) > 5:
+            print('\n'.join(f'  {e}' for e in batch[:3]))
+            print('  ...')
+            print(f'  {batch[-1]}')
+        else:
+            print('\n'.join(f'  {e}' for e in batch))
