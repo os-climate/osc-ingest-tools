@@ -1,4 +1,5 @@
 import mock
+
 from osc_ingest_trino import attach_trino_engine
 
 
@@ -17,4 +18,6 @@ def test_attach_trino_engine(mock_engine, mock_trino_auth, monkeypatch):
 
     attach_trino_engine(env_var_prefix="TEST", catalog="ex_catalog", schema="ex_schema", verbose=True)
 
-    mock_engine.assert_called_with("trino://tester@example:8000/ex_catalog/ex_schema", connect_args={'auth': 'yep', 'http_scheme': 'https'})
+    mock_engine.assert_called_with(
+        "trino://tester@example:8000/ex_catalog/ex_schema", connect_args={"auth": "yep", "http_scheme": "https"}
+    )

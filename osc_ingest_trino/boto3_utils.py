@@ -1,10 +1,12 @@
 import os
+
 import boto3
 
 __all__ = [
     "upload_directory_to_s3",
     "attach_s3_bucket",
 ]
+
 
 def upload_directory_to_s3(path, bucket, prefix, verbose=False):
     path = str(path)
@@ -15,8 +17,9 @@ def upload_directory_to_s3(path, bucket, prefix, verbose=False):
             src = os.path.join(subdir, f)
             dst = os.path.join(pfx, f)
             if verbose:
-                print(f'{src}  -->  {dst}')
+                print(f"{src}  -->  {dst}")
             bucket.upload_file(src, dst)
+
 
 def attach_s3_bucket(env_var_prefix):
     s3 = boto3.resource(
@@ -26,4 +29,3 @@ def attach_s3_bucket(env_var_prefix):
         aws_secret_access_key=os.environ[f"{env_var_prefix}_SECRET_KEY"],
     )
     return s3.Bucket(os.environ[f"{env_var_prefix}_BUCKET"])
-
