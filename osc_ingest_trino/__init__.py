@@ -5,7 +5,7 @@ python tools to assist with standardized data ingestion workflows for the OS-Cli
 """
 
 # defines the release version for this python package
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 from .boto3_utils import attach_s3_bucket, upload_directory_to_s3
 from .dotenv_utils import load_credentials_dotenv
