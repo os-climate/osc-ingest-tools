@@ -92,13 +92,22 @@ https://github.com/os-climate/osc-ingest-tools.
 All changes must pass the automated test suite, along with various static
 checks.
 
-The [Black](https://black.readthedocs.io/) code style is enforced.
+[Black](https://black.readthedocs.io/) code style and
+[isort](https://pycqa.github.io/isort/) import ordering are enforced.
+
+Enabling automatic formatting via [pre-commit](https://pre-commit.com/) is
+recommended:
+```
+pip install black isort pre-commit
+pre-commit install
+```
+
 To ensure compliance with static check tools, developers may wish to run;
 ```
 pip install black isort
 # auto-sort imports
 isort .
-# auto-format
+# auto-format code
 black .
 ```
 
