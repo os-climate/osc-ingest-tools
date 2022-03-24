@@ -123,21 +123,18 @@ tox -e static
 tox -e cov
 ```
 
-### build and upload a new release
+### Releasing
+To release a new version of this library, authorized developers should;
+- Prepare a signed release commit updating `version` in setup.py
+- Tag the commit using [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+prepended with "v"
+- Push the tag
 
-- update all occurrences of `__version__`
-- `python3 setup.py clean`
-- `python3 setup.py sdist`
-- `twine check dist/*`
-- `twine upload dist/*`
-- push latest to repo
-- create new release on github
+E.g.,
+```
+git commit -sm "Release v0.3.1"
+git tag v0.3.1
+git push --follow-tags
+```
 
-upload test or release candidate:
-- twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-
-### python packaging resources
-
-- https://packaging.python.org/
-- https://packaging.python.org/tutorials/packaging-projects/
-- https://realpython.com/pypi-publish-python-package/
+A Github workflow will then automatically release the version to PyPI.

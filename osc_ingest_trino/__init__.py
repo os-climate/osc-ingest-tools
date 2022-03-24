@@ -1,12 +1,3 @@
-"""
-osc-ingest-tools
-
-python tools to assist with standardized data ingestion workflows for the OS-Climate project
-"""
-
-# defines the release version for this python package
-__version__ = "0.3.1"
-
 from .boto3_utils import attach_s3_bucket, upload_directory_to_s3
 from .dotenv_utils import load_credentials_dotenv
 from .sqlcols import enforce_partition_column_order, enforce_sql_column_names, sql_compliant_name
