@@ -3,6 +3,7 @@ import os
 import trino
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql import text
+from datetime import datetime
 
 __all__ = [
     "attach_trino_engine",
@@ -95,6 +96,8 @@ class TrinoBatchInsert(object):
             t = x.replace("'", "''")
             # enclose string with single quotes
             return f"'{t}'"
+        if isinstance(x, datetime):
+            return f"TIMESTAMP '{x}'"
         return str(x)
 
     @staticmethod
