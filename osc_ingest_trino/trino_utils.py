@@ -1,3 +1,4 @@
+import math
 import os
 from datetime import datetime
 
@@ -98,6 +99,8 @@ class TrinoBatchInsert(object):
             return f"'{t}'"
         if isinstance(x, datetime):
             return f"TIMESTAMP '{x}'"
+        if x is None: # math.isnan(x):
+            return f"nan()"
         return str(x)
 
     @staticmethod
