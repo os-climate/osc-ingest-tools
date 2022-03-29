@@ -100,7 +100,7 @@ class TrinoBatchInsert(object):
         if isinstance(x, datetime):
             return f"TIMESTAMP '{x}'"
         if math.isnan(x):
-            return f"nan()"
+            return "nan()"
         return str(x)
 
     @staticmethod
