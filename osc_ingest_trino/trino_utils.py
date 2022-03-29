@@ -1,9 +1,9 @@
 import os
+from datetime import datetime
 
 import trino
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql import text
-from datetime import datetime
 
 __all__ = [
     "attach_trino_engine",
