@@ -92,6 +92,8 @@ class TrinoBatchInsert(object):
 
     @staticmethod
     def _sqlform(x):
+        if x is None:
+            return "NULL"
         if isinstance(x, str):
             # escape any single quotes in the string
             t = x.replace("'", "''")
@@ -99,8 +101,13 @@ class TrinoBatchInsert(object):
             return f"'{t}'"
         if isinstance(x, datetime):
             return f"TIMESTAMP '{x}'"
-        if math.isnan(x):
-            return "nan()"
+        if isinstance(x, float):
+            if math.isnan(x):
+                return "nan()"
+            if math.isinf(x):
+                if x < 0:
+                    return "-infinity()"
+                return "infinity()"
         return str(x)
 
     @staticmethod
