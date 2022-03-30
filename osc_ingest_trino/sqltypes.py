@@ -16,6 +16,7 @@ _p2smap = {
     "int64": "bigint",
     "Int64": "bigint",
     "bool": "boolean",
+    "boolean": "boolean",
     "category": "varchar",
     "datetime64[ns, UTC]": "timestamp",
 }
