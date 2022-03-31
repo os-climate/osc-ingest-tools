@@ -1,3 +1,5 @@
+import math
+from datetime import datetime
 from unittest import mock
 
 from osc_ingest_trino import TrinoBatchInsert, attach_trino_engine
@@ -31,12 +33,13 @@ def test_trino_batch_insert():
     cxn = mock.MagicMock()
     # tuple data, in form supplied to __call__ as specified in 'method' param docs:
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
-    rows = [("a", 4.5), ("b", 1.1), ("c'd", 3.5)]
+    rows = [("a", 4.5), ("b'c", math.nan), (None, math.inf), ("d", -math.inf), ("e", datetime(2022, 1, 1))]
     # invoke the __call__ method, simulating df.to_sql call
     tbi = TrinoBatchInsert(catalog="test", schema="test", batch_size=2, verbose=True)
     tbi(tbl, cxn, [], rows)
 
-    assert cxn.execute.call_count == 2
+    assert cxn.execute.call_count == 3
     xcalls = cxn.execute.call_args_list
-    assert xcalls[0].args[0].text == "insert into test.test.test values\n('a', 4.5),\n('b', 1.1)"
-    assert xcalls[1].args[0].text == "insert into test.test.test values\n('c''d', 3.5)"
+    assert xcalls[0].args[0].text == "insert into test.test.test values\n('a', 4.5),\n('b''c', nan())"
+    assert xcalls[1].args[0].text == "insert into test.test.test values\n(NULL, infinity()),\n('d', -infinity())"
+    assert xcalls[2].args[0].text == "insert into test.test.test values\n('e', TIMESTAMP '2022-01-01 00:00:00')"
