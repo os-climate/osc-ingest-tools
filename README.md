@@ -132,8 +132,8 @@ prepended with "v"
 
 E.g.,
 ```
-git commit -sm "Release v0.3.2"
-git tag v0.3.2
+git commit -sm "Release v0.3.3"
+git tag v0.3.3
 git push --follow-tags
 ```
 
