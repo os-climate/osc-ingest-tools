@@ -97,6 +97,9 @@ class TrinoBatchInsert(object):
         if isinstance(x, str):
             # escape any single quotes in the string
             t = x.replace("'", "''")
+            # colons are mostly a problem for ':some_id_name', which is interpreted as
+            # a parameter requiring binding, but just escaping them all works
+            t = t.replace(":", "\\:")
             # enclose string with single quotes
             return f"'{t}'"
         if isinstance(x, datetime):
