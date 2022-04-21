@@ -36,17 +36,20 @@ def attach_trino_engine(env_var_prefix="TRINO", catalog=None, schema=None, verbo
 
 
 class TrinoBatchInsert(object):
-    def __init__(self, catalog=None, schema=None, batch_size=1000, verbose=False):
+    def __init__(self, catalog=None, schema=None, batch_size=1000, optimize=False, verbose=False):
         self.catalog = catalog
         self.schema = schema
         self.batch_size = batch_size
+        self.optimize = optimize
         self.verbose = verbose
 
     # conforms to signature expected by pandas 'callable' value for method kw arg
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
     # https://pandas.pydata.org/docs/user_guide/io.html#io-sql-method
     def __call__(self, sqltbl, dbcxn, columns, data_iter):
+        fqname = self._full_table_name(sqltbl)
         batch = []
+        self.ninserts = 0
         for r in data_iter:
             # each row of data_iter is a python tuple
             # I cannot currently make good use of sqlalchemy ':params'
@@ -56,12 +59,20 @@ class TrinoBatchInsert(object):
             batch.append(row)
             # possible alternative: dispatch batches by total batch size in bytes
             if len(batch) >= self.batch_size:
-                self._do_insert(dbcxn, sqltbl, columns, batch)
+                self._do_insert(dbcxn, fqname, batch)
                 batch = []
         if len(batch) > 0:
-            self._do_insert(dbcxn, sqltbl, columns, batch)
+            self._do_insert(dbcxn, fqname, batch)
+        if self.optimize:
+            if self.verbose:
+                print("optimizing table files")
+            sql = text(f"alter table {fqname} execute optimize")
+            qres = dbcxn.execute(sql)
+            x = qres.fetchall()
+            if self.verbose:
+                print(f"execute optimize: {x}")
 
-    def _do_insert(self, dbcxn, sqltbl, columns, batch):
+    def _do_insert(self, dbcxn, fqname, batch):
         if self.verbose:
             print(f"inserting {len(batch)} records")
             TrinoBatchInsert._print_batch(batch)
@@ -71,7 +82,7 @@ class TrinoBatchInsert(object):
         valclause = ",\n".join(batch)
         # injecting raw sql strings is deprecated and will be illegal in sqlalchemy 2.x
         # using text() is the correct way:
-        sql = text(f"insert into {self._full_table_name(sqltbl)} values\n{valclause}")
+        sql = text(f"insert into {fqname} values\n{valclause}")
         # if self.verbose: print(f'{sql}')
         qres = dbcxn.execute(sql)
         x = qres.fetchall()
