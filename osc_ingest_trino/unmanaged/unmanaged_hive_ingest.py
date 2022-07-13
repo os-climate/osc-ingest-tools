@@ -1,10 +1,7 @@
-import os
 import shutil
 import uuid
 
 import pandas as pd
-import trino
-from sqlalchemy.engine import create_engine
 
 from osc_ingest_trino import create_table_schema_pairs, upload_directory_to_s3
 
