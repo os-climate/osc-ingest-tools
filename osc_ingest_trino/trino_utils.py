@@ -1,13 +1,19 @@
 import math
 import os
+import uuid
 from datetime import datetime
 
+import sqlalchemy
 import trino
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql import text
 
+import osc_ingest_trino as osc
+import osc_ingest_trino.unmanaged as oscu
+
 __all__ = [
     "attach_trino_engine",
+    "fast_pandas_ingest_via_hive",
     "TrinoBatchInsert",
 ]
 
@@ -33,6 +39,95 @@ def attach_trino_engine(env_var_prefix="TRINO", catalog=None, schema=None, verbo
     engine = create_engine(sqlstring, connect_args=sqlargs)
     engine.connect()
     return engine
+
+
+def _do_sql(sql, engine, verbose=False):
+    if type(sql) != sqlalchemy.sql.elements.TextClause:
+        sql = text(str(sql))
+    if verbose:
+        print(sql)
+    qres = engine.execute(sql)
+    res = qres.fetchall()
+    if verbose:
+        print(res)
+    return res
+
+
+def fast_pandas_ingest_via_hive(  # noqa: C901
+    df,
+    engine,
+    catalog,
+    schema,
+    table,
+    hive_bucket,
+    hive_catalog,
+    hive_schema,
+    partition_columns=[],
+    overwrite=False,
+    typemap={},
+    colmap={},
+    verbose=False,
+):
+
+    uh8 = uuid.uuid4().hex[:8]
+    hive_table = f"ingest_temp_{uh8}"
+
+    dfw = df
+    if len(partition_columns) > 0:
+        if verbose:
+            print("enforcing dataframe partition column order")
+        dfw = osc.enforce_partition_column_order(dfw, partition_columns)
+
+    # do this after any changes to DF column orderings above
+    columnschema = osc.create_table_schema_pairs(dfw, typemap=typemap, colmap=colmap)
+
+    # verify destination table first, to fail early and avoid creation of hive tables
+    if verbose:
+        print(f"\nverifying existence of table {catalog}.{schema}.{table}")
+    tabledef = f"create table if not exists {catalog}.{schema}.{table} (\n"
+    tabledef += f"{columnschema}\n"
+    tabledef += ") with (\n    format = 'parquet'"
+    if len(partition_columns) > 0:
+        tabledef += ",\n"
+        tabledef += f"    partitioning = array{partition_columns}"
+    tabledef += "\n)"
+    _do_sql(tabledef, engine, verbose=verbose)
+
+    if verbose:
+        print(f"\nstaging dataframe parquet to s3 {hive_bucket.name}")
+    oscu.ingest_unmanaged_parquet(
+        dfw, hive_schema, hive_table, hive_bucket, partition_columns=partition_columns, verbose=verbose
+    )
+
+    if verbose:
+        print(f"\ndeclaring intermediate hive table {hive_catalog}.{hive_schema}.{hive_table}")
+    tabledef = f"create table if not exists {hive_catalog}.{hive_schema}.{hive_table} (\n"
+    tabledef += f"{columnschema}\n"
+    tabledef += ") with (\n    format = 'parquet',\n"
+    if len(partition_columns) > 0:
+        tabledef += f"    partitioned_by = array{partition_columns},\n"
+    tabledef += f"    external_location = 's3a://{hive_bucket.name}/trino/{hive_schema}/{hive_table}/'\n)"
+    _do_sql(tabledef, engine, verbose=verbose)
+
+    if verbose:
+        print("\nsyncing partition metadata on intermediate hive table")
+    sql = text(f"call {hive_catalog}.system.sync_partition_metadata('{hive_schema}', '{hive_table}', 'FULL')")
+    _do_sql(sql, engine, verbose=verbose)
+
+    if overwrite:
+        if verbose:
+            print(f"\noverwriting data in {catalog}.{schema}.{table}")
+        sql = f"delete from {catalog}.{schema}.{table}"
+        _do_sql(sql, engine, verbose=verbose)
+
+    if verbose:
+        print(f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {catalog}.{schema}.{table}")
+    sql = f"insert into {catalog}.{schema}.{table}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}"
+    _do_sql(sql, engine, verbose=verbose)
+
+    if verbose:
+        print(f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}")
+    oscu.drop_unmanaged_table(hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose)
 
 
 class TrinoBatchInsert(object):
