@@ -111,8 +111,9 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
 
     if verbose:
         print("\nsyncing partition metadata on intermediate hive table")
-    sql = text(f"call {hive_catalog}.system.sync_partition_metadata('{hive_schema}', '{hive_table}', 'FULL')")
-    _do_sql(sql, engine, verbose=verbose)
+    if len(partition_columns) > 0:
+        sql = text(f"call {hive_catalog}.system.sync_partition_metadata('{hive_schema}', '{hive_table}', 'FULL')")
+        _do_sql(sql, engine, verbose=verbose)
 
     if overwrite:
         if verbose:
