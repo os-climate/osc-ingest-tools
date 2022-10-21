@@ -47,3 +47,26 @@ def test_trino_batch_insert():
         == "insert into test.test.test values\n('e', TIMESTAMP '2022-01-01 00:00:00'),\n('\\:f', 1.0)"
     )
     assert xcalls[3].args[0].text == "alter table test.test.test execute optimize"
+
+
+def test_trino_pandas_insert():
+    import pandas as pd
+
+    # mock up an sqlalchemy table
+    tbl = mock.MagicMock()
+    tbl.name = "test_pandas"
+    # mock up an sqlalchemy Connnection
+    cxn = mock.MagicMock()
+    df = pd.DataFrame(
+        {"A": [4.5], "B'C": [math.nan], None: [math.inf], "D": [-math.inf], "E": [datetime(2022, 1, 1)], ":F": [1.0]}
+    ).convert_dtypes()
+    assert (df.dtypes == ["Float64", "Int64", "Float64", "Float64", "datetime64[ns]", "Int64"]).all()
+    # This passes Mock test, but fails when used in Trino/Iceberg environment
+    df.to_sql(
+        tbl.name,
+        con=cxn,
+        schema="test",
+        if_exists="append",
+        index=False,
+        method=TrinoBatchInsert(batch_size=5, verbose=True),
+    )
