@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="osc-ingest-tools",
-    version="0.4.1",
+    version="0.4.2",
     description="python tools to assist with standardized data ingestion workflows for the OS-Climate project",
     long_description=README,
     long_description_content_type="text/markdown",
