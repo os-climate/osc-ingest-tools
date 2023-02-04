@@ -15,6 +15,7 @@ __all__ = [
     "attach_trino_engine",
     "fast_pandas_ingest_via_hive",
     "TrinoBatchInsert",
+    "_do_sql",
 ]
 
 
