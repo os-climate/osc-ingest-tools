@@ -15,6 +15,7 @@ __all__ = [
     "attach_trino_engine",
     "fast_pandas_ingest_via_hive",
     "TrinoBatchInsert",
+    "_do_sql",
 ]
 
 
@@ -70,7 +71,6 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     colmap={},
     verbose=False,
 ):
-
     uh8 = uuid.uuid4().hex[:8]
     hive_table = f"ingest_temp_{uh8}"
 
