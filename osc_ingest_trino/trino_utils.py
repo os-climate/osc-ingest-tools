@@ -6,6 +6,7 @@ from datetime import datetime
 import sqlalchemy
 import trino
 from sqlalchemy.engine import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 
 import osc_ingest_trino as osc
@@ -101,36 +102,43 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
         dfw, hive_schema, hive_table, hive_bucket, partition_columns=partition_columns, verbose=verbose
     )
 
-    if verbose:
-        print(f"\ndeclaring intermediate hive table {hive_catalog}.{hive_schema}.{hive_table}")
-    tabledef = f"create table if not exists {hive_catalog}.{hive_schema}.{hive_table} (\n"
-    tabledef += f"{columnschema}\n"
-    tabledef += ") with (\n    format = 'parquet',\n"
-    if len(partition_columns) > 0:
-        tabledef += f"    partitioned_by = array{partition_columns},\n"
-    tabledef += f"    external_location = 's3a://{hive_bucket.name}/trino/{hive_schema}/{hive_table}/'\n)"
-    _do_sql(tabledef, engine, verbose=verbose)
-
-    if verbose:
-        print("\nsyncing partition metadata on intermediate hive table")
-    if len(partition_columns) > 0:
-        sql = text(f"call {hive_catalog}.system.sync_partition_metadata('{hive_schema}', '{hive_table}', 'FULL')")
-        _do_sql(sql, engine, verbose=verbose)
-
-    if overwrite:
+    try:
         if verbose:
-            print(f"\noverwriting data in {catalog}.{schema}.{table}")
-        sql = f"delete from {catalog}.{schema}.{table}"
+            print(f"\ndeclaring intermediate hive table {hive_catalog}.{hive_schema}.{hive_table}")
+        tabledef = f"create table if not exists {hive_catalog}.{hive_schema}.{hive_table} (\n"
+        tabledef += f"{columnschema}\n"
+        tabledef += ") with (\n    format = 'parquet',\n"
+        if len(partition_columns) > 0:
+            tabledef += f"    partitioned_by = array{partition_columns},\n"
+        tabledef += f"    external_location = 's3a://{hive_bucket.name}/trino/{hive_schema}/{hive_table}/'\n)"
+        _do_sql(tabledef, engine, verbose=verbose)
+
+        if verbose:
+            print("\nsyncing partition metadata on intermediate hive table")
+        if len(partition_columns) > 0:
+            sql = text(f"call {hive_catalog}.system.sync_partition_metadata('{hive_schema}', '{hive_table}', 'FULL')")
+            _do_sql(sql, engine, verbose=verbose)
+
+        if overwrite:
+            if verbose:
+                print(f"\noverwriting data in {catalog}.{schema}.{table}")
+            sql = f"delete from {catalog}.{schema}.{table}"
+            _do_sql(sql, engine, verbose=verbose)
+
+        if verbose:
+            print(f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {catalog}.{schema}.{table}")
+        sql = f"insert into {catalog}.{schema}.{table}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}"
         _do_sql(sql, engine, verbose=verbose)
 
-    if verbose:
-        print(f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {catalog}.{schema}.{table}")
-    sql = f"insert into {catalog}.{schema}.{table}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}"
-    _do_sql(sql, engine, verbose=verbose)
-
-    if verbose:
-        print(f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}")
-    oscu.drop_unmanaged_table(hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose)
+        if verbose:
+            print(f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}")
+        oscu.drop_unmanaged_table(hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose)
+    except SQLAlchemyError:
+        # Clean up table that will otherwise be orphaned
+        if verbose:
+            print(f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}")
+        oscu.drop_unmanaged_table(hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose)
+        raise
 
 
 class TrinoBatchInsert(object):
