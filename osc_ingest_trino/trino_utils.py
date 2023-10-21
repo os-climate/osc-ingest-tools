@@ -47,7 +47,8 @@ def _do_sql(sql, engine, verbose=False):
         sql = text(str(sql))
     if verbose:
         print(sql)
-    qres = engine.execute(sql)
+    with engine.begin() as cxn:
+        qres = cxn.execute(sql)
     res = None
     if qres.returns_rows:
         res = qres.fetchall()
