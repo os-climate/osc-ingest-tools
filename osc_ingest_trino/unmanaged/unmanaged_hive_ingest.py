@@ -2,6 +2,7 @@ import shutil
 import uuid
 
 import pandas as pd
+from sqlalchemy import text
 
 from osc_ingest_trino import create_table_schema_pairs, upload_directory_to_s3
 
@@ -29,8 +30,9 @@ def _prefix(pfx, schema, table):
 
 
 def drop_unmanaged_table(catalog, schema, table, engine, bucket, prefix=_default_prefix, verbose=False):
-    sql = f"drop table if exists {catalog}.{schema}.{table}"
-    qres = engine.execute(sql)
+    sql = text(f"drop table if exists {catalog}.{schema}.{table}")
+    with engine.begin() as cxn:
+        qres = cxn.execute(sql)
     dres = bucket.objects.filter(Prefix=f"{_prefix(prefix, schema, table)}/").delete()
     if verbose:
         print(dres)

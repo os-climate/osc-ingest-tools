@@ -43,11 +43,12 @@ def attach_trino_engine(env_var_prefix="TRINO", catalog=None, schema=None, verbo
 
 
 def _do_sql(sql, engine, verbose=False):
-    if type(sql) != sqlalchemy.sql.elements.TextClause:
+    if type(sql) is not sqlalchemy.sql.elements.TextClause:
         sql = text(str(sql))
     if verbose:
         print(sql)
-    qres = engine.execute(sql)
+    with engine.begin() as cxn:
+        qres = cxn.execute(sql)
     res = None
     if qres.returns_rows:
         res = qres.fetchall()
