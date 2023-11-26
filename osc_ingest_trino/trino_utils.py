@@ -3,11 +3,13 @@ import os
 import uuid
 from datetime import datetime
 
+from boto3.resource import Bucket
 import sqlalchemy
 import trino
-from sqlalchemy.engine import create_engine
+from sqlalchemy.engine import Connection, Engine, create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql import text
+from sqlalchemy.sql import table, text
+# from sqlalchemy.sql.schema import Table as Table
 
 import osc_ingest_trino as osc
 import osc_ingest_trino.unmanaged as oscu
@@ -20,7 +22,11 @@ __all__ = [
 ]
 
 
-def attach_trino_engine(env_var_prefix="TRINO", catalog=None, schema=None, verbose=False):
+def attach_trino_engine(
+        env_var_prefix: str="TRINO",
+        catalog: Optional[str]=None,
+        schema: Optional[str]=None,
+        verbose: Optional[bool]=False) -> Engine:
     sqlstring = "trino://{user}@{host}:{port}".format(
         user=os.environ[f"{env_var_prefix}_USER"],
         host=os.environ[f"{env_var_prefix}_HOST"],
@@ -43,7 +49,7 @@ def attach_trino_engine(env_var_prefix="TRINO", catalog=None, schema=None, verbo
     return engine
 
 
-def _do_sql(sql, engine, verbose=False):
+def _do_sql(sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool=False) -> List[str]:
     if type(sql) is not sqlalchemy.sql.elements.TextClause:
         sql = text(str(sql))
     if verbose:
@@ -59,19 +65,19 @@ def _do_sql(sql, engine, verbose=False):
 
 
 def fast_pandas_ingest_via_hive(  # noqa: C901
-    df,
-    engine,
-    catalog,
-    schema,
-    table,
-    hive_bucket,
-    hive_catalog,
-    hive_schema,
-    partition_columns=[],
-    overwrite=False,
-    typemap={},
-    colmap={},
-    verbose=False,
+    df: pd.DataFrame,
+    engine: Engine,
+    catalog: str,
+    schema: str,
+    table: str,
+    hive_bucket: Bucket,
+    hive_catalog: str,
+    hive_schema: str,
+    partition_columns: List[str]=[],
+    overwrite: bool=False,
+    typemap: Dict={},
+    colmap: Dict={},
+    verbose: bool=False,
 ):
     uh8 = uuid.uuid4().hex[:8]
     hive_table = f"ingest_temp_{uh8}"
@@ -143,7 +149,14 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
 
 
 class TrinoBatchInsert(object):
-    def __init__(self, catalog=None, schema=None, batch_size=1000, optimize=False, verbose=False):
+    def __init__(
+            self,
+            catalog: str=None,
+            schema: str=None,
+            batch_size: int=1000,
+            optimize: bool=False,
+            verbose: bool=False
+    ):
         self.catalog = catalog
         self.schema = schema
         self.batch_size = batch_size
@@ -153,7 +166,7 @@ class TrinoBatchInsert(object):
     # conforms to signature expected by pandas 'callable' value for method kw arg
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
     # https://pandas.pydata.org/docs/user_guide/io.html#io-sql-method
-    def __call__(self, sqltbl, dbcxn, columns, data_iter):
+    def __call__(self, sqltbl: table, dbcxn: Connection, columns: List[str], data_iter: List[Tuple]) -> None:
         fqname = self._full_table_name(sqltbl)
         batch = []
         self.ninserts = 0
@@ -179,7 +192,7 @@ class TrinoBatchInsert(object):
             if self.verbose:
                 print(f"execute optimize: {x}")
 
-    def _do_insert(self, dbcxn, fqname, batch):
+    def _do_insert(self, dbcxn: Connection, fqname: str, batch: List[str]) -> None:
         if self.verbose:
             print(f"inserting {len(batch)} records")
             TrinoBatchInsert._print_batch(batch)
@@ -196,7 +209,7 @@ class TrinoBatchInsert(object):
         if self.verbose:
             print(f"batch insert result: {x}")
 
-    def _full_table_name(self, sqltbl):
+    def _full_table_name(self, sqltbl: table) -> str:
         # start with table name
         name = f"{sqltbl.name}"
         # prepend schema - allow override from this class
@@ -209,7 +222,7 @@ class TrinoBatchInsert(object):
         return name
 
     @staticmethod
-    def _sqlform(x):
+    def _sqlform(x: Any) -> str:
         if x is None:
             return "NULL"
         if isinstance(x, str):
@@ -232,7 +245,7 @@ class TrinoBatchInsert(object):
         return str(x)
 
     @staticmethod
-    def _print_batch(batch):
+    def _print_batch(batch: int) -> None:
         if len(batch) > 5:
             print("\n".join(f"  {e}" for e in batch[:3]))
             print("  ...")
