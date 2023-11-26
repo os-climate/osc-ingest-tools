@@ -2,13 +2,13 @@ import math
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import pandas as pd
 import sqlalchemy
 import trino
 from boto3.resource import Bucket
-from sqlalchemy import Connection, Engine, Row, Sequence, Table, create_engine
+from sqlalchemy import Connection, Engine, Row, Table, create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 
@@ -175,7 +175,7 @@ class TrinoBatchInsert(object):
     # https://pandas.pydata.org/docs/user_guide/io.html#io-sql-method
     def __call__(self, sqltbl: Table, dbcxn: Connection, columns: List[str], data_iter: List[Tuple]) -> None:
         fqname = self._full_table_name(sqltbl)
-        batch = []
+        batch: List[str] = []
         self.ninserts = 0
         for r in data_iter:
             # each row of data_iter is a python tuple

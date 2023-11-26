@@ -1,5 +1,5 @@
 import re
-from typing import List, Union
+from typing import List, Union, cast
 
 import pandas as pd
 
@@ -15,9 +15,9 @@ _rmpunc = re.compile(r"[,.()&$/+-]+")
 
 
 # 63 seems to be a common max column name length
-def sql_compliant_name(name: Union[List[str], str], maxlen=63) -> Union[str]:
+def sql_compliant_name(name: Union[List[str], str], maxlen=63) -> Union[List[str], str]:
     if isinstance(name, list):
-        return [sql_compliant_name(e, maxlen=maxlen) for e in name]
+        return [cast(str, sql_compliant_name(e, maxlen=maxlen)) for e in name]
     w = str(name).casefold().rstrip().lstrip()
     w = w.replace("-", "_")
     w = _rmpunc.sub("", w)
