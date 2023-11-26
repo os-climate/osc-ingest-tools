@@ -54,7 +54,9 @@ def attach_trino_engine(
     return engine
 
 
-def _do_sql(sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False) -> Optional[Sequence[Row[Any]]]:
+def _do_sql(
+    sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False
+) -> Optional[Sequence[Row[Any]]]:
     if type(sql) is not sqlalchemy.sql.elements.TextClause:
         sql = text(str(sql))
     if verbose:
