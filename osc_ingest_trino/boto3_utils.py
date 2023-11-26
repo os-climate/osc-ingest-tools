@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 
-def upload_directory_to_s3(path: Union[Path, str], bucket: Bucket, prefix: str, verbose: bool=False) -> None:
+def upload_directory_to_s3(path: Union[Path, str], bucket: Bucket, prefix: str, verbose: bool = False) -> None:
     path = str(path)
     prefix = str(prefix)
     for subdir, dirs, files in os.walk(path):

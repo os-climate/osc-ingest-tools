@@ -3,16 +3,18 @@ import os
 import uuid
 from datetime import datetime
 
-from boto3.resource import Bucket
 import sqlalchemy
 import trino
+from boto3.resource import Bucket
 from sqlalchemy.engine import Connection, Engine, create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import table, text
-# from sqlalchemy.sql.schema import Table as Table
 
 import osc_ingest_trino as osc
 import osc_ingest_trino.unmanaged as oscu
+
+# from sqlalchemy.sql.schema import Table as Table
+
 
 __all__ = [
     "attach_trino_engine",
@@ -23,10 +25,11 @@ __all__ = [
 
 
 def attach_trino_engine(
-        env_var_prefix: str="TRINO",
-        catalog: Optional[str]=None,
-        schema: Optional[str]=None,
-        verbose: Optional[bool]=False) -> Engine:
+    env_var_prefix: str = "TRINO",
+    catalog: Optional[str] = None,
+    schema: Optional[str] = None,
+    verbose: Optional[bool] = False,
+) -> Engine:
     sqlstring = "trino://{user}@{host}:{port}".format(
         user=os.environ[f"{env_var_prefix}_USER"],
         host=os.environ[f"{env_var_prefix}_HOST"],
@@ -49,7 +52,7 @@ def attach_trino_engine(
     return engine
 
 
-def _do_sql(sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool=False) -> List[str]:
+def _do_sql(sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False) -> List[str]:
     if type(sql) is not sqlalchemy.sql.elements.TextClause:
         sql = text(str(sql))
     if verbose:
@@ -73,11 +76,11 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     hive_bucket: Bucket,
     hive_catalog: str,
     hive_schema: str,
-    partition_columns: List[str]=[],
-    overwrite: bool=False,
-    typemap: Dict={},
-    colmap: Dict={},
-    verbose: bool=False,
+    partition_columns: List[str] = [],
+    overwrite: bool = False,
+    typemap: Dict = {},
+    colmap: Dict = {},
+    verbose: bool = False,
 ):
     uh8 = uuid.uuid4().hex[:8]
     hive_table = f"ingest_temp_{uh8}"
@@ -150,12 +153,12 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
 
 class TrinoBatchInsert(object):
     def __init__(
-            self,
-            catalog: str=None,
-            schema: str=None,
-            batch_size: int=1000,
-            optimize: bool=False,
-            verbose: bool=False
+        self,
+        catalog: str = None,
+        schema: str = None,
+        batch_size: int = 1000,
+        optimize: bool = False,
+        verbose: bool = False,
     ):
         self.catalog = catalog
         self.schema = schema
