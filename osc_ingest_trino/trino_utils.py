@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+import pandas as pd
 import sqlalchemy
 import trino
 from boto3.resource import Bucket
@@ -11,7 +12,6 @@ from sqlalchemy.engine import Connection, Engine, create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import table, text
 
-import pandas as pd
 import osc_ingest_trino as osc
 import osc_ingest_trino.unmanaged as oscu
 
