@@ -39,7 +39,7 @@ def sql_compliant_name(name: Union[List[str], str], maxlen=63) -> Union[List[str
     return w
 
 
-def enforce_sql_column_names(df: pd.DataFrame, inplace: bool=False, maxlen: int=63) -> pd.DataFrame:
+def enforce_sql_column_names(df: pd.DataFrame, inplace: bool = False, maxlen: int = 63) -> pd.DataFrame:
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     icols = df.columns.to_list()
@@ -50,7 +50,7 @@ def enforce_sql_column_names(df: pd.DataFrame, inplace: bool=False, maxlen: int=
     return df.rename(columns=rename_map, inplace=inplace)
 
 
-def enforce_partition_column_order(df: pd.DataFrame, pcols: List[str], inplace: bool=False) -> None:
+def enforce_partition_column_order(df: pd.DataFrame, pcols: List[str], inplace: bool = False) -> None:
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(pcols, list):
