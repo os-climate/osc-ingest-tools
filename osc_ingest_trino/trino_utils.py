@@ -8,9 +8,9 @@ import pandas as pd
 import sqlalchemy
 import trino
 from boto3.resource import Bucket
-from sqlalchemy import Connection, Engine, Row, Sequence, create_engine
+from sqlalchemy import Connection, Engine, Row, Sequence, Table, create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql import table, text
+from sqlalchemy.sql import text
 
 import osc_ingest_trino as osc
 import osc_ingest_trino.unmanaged as oscu
@@ -54,7 +54,9 @@ def attach_trino_engine(
     return engine
 
 
-def _do_sql(sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False) -> Optional[Sequence[Row[Any]]]:
+def _do_sql(
+    sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False
+) -> Optional[Sequence[Row[Any]]]:
     if type(sql) is not sqlalchemy.sql.elements.TextClause:
         sql = text(str(sql))
     if verbose:
