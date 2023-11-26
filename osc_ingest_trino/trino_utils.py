@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import sqlalchemy
 import trino
 from boto3.resource import Bucket
-from sqlalchemy.engine import Connection, Engine, create_engine
+from sqlalchemy import Connection, Engine, Row, Sequence, create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import table, text
 
@@ -54,7 +54,7 @@ def attach_trino_engine(
     return engine
 
 
-def _do_sql(sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False) -> List[str]:
+def _do_sql(sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False) -> Optional[Sequence[Row[Any]]]:
     if type(sql) is not sqlalchemy.sql.elements.TextClause:
         sql = text(str(sql))
     if verbose:
@@ -83,7 +83,7 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     typemap: Dict = {},
     colmap: Dict = {},
     verbose: bool = False,
-):
+) -> None:
     uh8 = uuid.uuid4().hex[:8]
     hive_table = f"ingest_temp_{uh8}"
 
@@ -134,12 +134,12 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
         if overwrite:
             if verbose:
                 print(f"\noverwriting data in {catalog}.{schema}.{table}")
-            sql = f"delete from {catalog}.{schema}.{table}"
+            sql = text(f"delete from {catalog}.{schema}.{table}")
             _do_sql(sql, engine, verbose=verbose)
 
         if verbose:
             print(f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {catalog}.{schema}.{table}")
-        sql = f"insert into {catalog}.{schema}.{table}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}"
+        sql = text(f"insert into {catalog}.{schema}.{table}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}")
         _do_sql(sql, engine, verbose=verbose)
 
         if verbose:
@@ -156,11 +156,11 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
 class TrinoBatchInsert(object):
     def __init__(
         self,
-        catalog: str = None,
-        schema: str = None,
-        batch_size: int = 1000,
-        optimize: bool = False,
-        verbose: bool = False,
+        catalog: Optional[str] = None,
+        schema: Optional[str] = None,
+        batch_size: Optional[int] = 1000,
+        optimize: Optional[bool] = False,
+        verbose: Optional[bool] = False,
     ):
         self.catalog = catalog
         self.schema = schema
@@ -171,7 +171,7 @@ class TrinoBatchInsert(object):
     # conforms to signature expected by pandas 'callable' value for method kw arg
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
     # https://pandas.pydata.org/docs/user_guide/io.html#io-sql-method
-    def __call__(self, sqltbl: table, dbcxn: Connection, columns: List[str], data_iter: List[Tuple]) -> None:
+    def __call__(self, sqltbl: Table, dbcxn: Connection, columns: List[str], data_iter: List[Tuple]) -> None:
         fqname = self._full_table_name(sqltbl)
         batch = []
         self.ninserts = 0
@@ -214,9 +214,9 @@ class TrinoBatchInsert(object):
         if self.verbose:
             print(f"batch insert result: {x}")
 
-    def _full_table_name(self, sqltbl: table) -> str:
+    def _full_table_name(self, sqltbl: Table) -> str:
         # start with table name
-        name = f"{sqltbl.name}"
+        name: str = f"{sqltbl.name}"
         # prepend schema - allow override from this class
         name = f"{self.schema or sqltbl.schema}.{name}"
         # prepend catalog, if provided
@@ -250,7 +250,7 @@ class TrinoBatchInsert(object):
         return str(x)
 
     @staticmethod
-    def _print_batch(batch: int) -> None:
+    def _print_batch(batch: List[str]) -> None:
         if len(batch) > 5:
             print("\n".join(f"  {e}" for e in batch[:3]))
             print("  ...")
