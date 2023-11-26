@@ -1,5 +1,8 @@
 import os
 
+from pathlib import Path
+from typing import Union
+
 import boto3
 from boto3.resource import Bucket
 

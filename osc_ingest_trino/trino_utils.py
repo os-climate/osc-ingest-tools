@@ -2,6 +2,7 @@ import math
 import os
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from boto3.resource import Bucket
 import sqlalchemy
@@ -11,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import table, text
 # from sqlalchemy.sql.schema import Table as Table
 
+import pandas as pd
 import osc_ingest_trino as osc
 import osc_ingest_trino.unmanaged as oscu
 
