@@ -86,7 +86,7 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     columnschema = osc.create_table_schema_pairs(dfw, typemap=typemap, colmap=colmap)
 
     # verify destination table first, to fail early and avoid creation of hive tables
-    fq_tablename = '.'.join([catalog, schema, table][(catalog is None):])
+    fq_tablename = ".".join([catalog, schema, table][(catalog is None) :])
     if verbose:
         print(f"\nverifying existence of table {fq_tablename}")
     tabledef = f"create table if not exists {fq_tablename} (\n"
