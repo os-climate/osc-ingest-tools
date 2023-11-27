@@ -26,6 +26,13 @@ setup(
     ],
     packages=find_packages(),
     include_package_data=True,
-    install_requires=["trino[sqlalchemy]>=0.323", "sqlalchemy>=2.0", "pandas", "python-dotenv", "boto3"],
+    install_requires=[
+        "trino[sqlalchemy]>=0.323",
+        "sqlalchemy>=2.0",
+        "pandas",
+        "python-dotenv",
+        "boto3",
+        "mypy-boto-s3",
+    ],
     entry_points={"console_scripts": []},
 )

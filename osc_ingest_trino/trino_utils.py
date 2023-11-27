@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import pandas as pd
 import sqlalchemy
 import trino
-from boto3.resource import Bucket
+from mypy_boto3_s3.service_resource import Bucket
 from sqlalchemy import Connection, Engine, Row, Table, create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
