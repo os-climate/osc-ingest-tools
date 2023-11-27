@@ -86,9 +86,10 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     columnschema = osc.create_table_schema_pairs(dfw, typemap=typemap, colmap=colmap)
 
     # verify destination table first, to fail early and avoid creation of hive tables
+    fq_tablename = '.'.join([catalog, schema, table][(catalog is None):])
     if verbose:
-        print(f"\nverifying existence of table {catalog}.{schema}.{table}")
-    tabledef = f"create table if not exists {catalog}.{schema}.{table} (\n"
+        print(f"\nverifying existence of table {fq_tablename}")
+    tabledef = f"create table if not exists {fq_tablename} (\n"
     tabledef += f"{columnschema}\n"
     tabledef += ") with (\n    format = 'parquet'"
     if len(partition_columns) > 0:
@@ -122,13 +123,13 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
 
         if overwrite:
             if verbose:
-                print(f"\noverwriting data in {catalog}.{schema}.{table}")
-            sql = f"delete from {catalog}.{schema}.{table}"
+                print(f"\noverwriting data in {fq_tablename}")
+            sql = text(f"delete from {fq_tablename}")
             _do_sql(sql, engine, verbose=verbose)
 
         if verbose:
-            print(f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {catalog}.{schema}.{table}")
-        sql = f"insert into {catalog}.{schema}.{table}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}"
+            print(f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {fq_tablename}")
+        sql = text(f"insert into {fq_tablename}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}")
         _do_sql(sql, engine, verbose=verbose)
 
         if verbose:
