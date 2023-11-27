@@ -1,3 +1,5 @@
+from typing import Dict
+
 import pandas as pd
 
 __all__ = [
@@ -22,7 +24,7 @@ _p2smap = {
 }
 
 
-def pandas_type_to_sql(pt, typemap={}):
+def pandas_type_to_sql(pt: str, typemap: Dict[str, str] = {}):
     if not isinstance(typemap, dict):
         raise ValueError("typemap must be a dict")
     # user defined typemap overrides _p2smap
@@ -32,7 +34,12 @@ def pandas_type_to_sql(pt, typemap={}):
     raise ValueError("unexpected pandas column type '{pt}'".format(pt=pt))
 
 
-def create_table_schema_pairs(df, typemap={}, colmap={}, indent=4):
+def create_table_schema_pairs(
+    df: pd.DataFrame,
+    typemap: Dict[str, str] = {},
+    colmap: Dict[str, str] = {},
+    indent: int = 4,
+) -> str:
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(colmap, dict):

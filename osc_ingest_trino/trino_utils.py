@@ -82,8 +82,8 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     hive_schema: str,
     partition_columns: List[str] = [],
     overwrite: bool = False,
-    typemap: Dict = {},
-    colmap: Dict = {},
+    typemap: Dict[str, str] = {},
+    colmap: Dict[str, str] = {},
     verbose: bool = False,
 ) -> None:
     uh8 = uuid.uuid4().hex[:8]
@@ -160,9 +160,9 @@ class TrinoBatchInsert(object):
         self,
         catalog: Optional[str] = None,
         schema: Optional[str] = None,
-        batch_size: Optional[int] = 1000,
-        optimize: Optional[bool] = False,
-        verbose: Optional[bool] = False,
+        batch_size: int = 1000,
+        optimize: bool = False,
+        verbose: bool = False,
     ):
         self.catalog = catalog
         self.schema = schema

@@ -19,3 +19,7 @@ repos:
         - --ignore=E2, W5, F401, E401
         - --select=E, W, F, N
         - --max-line-length=120
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v1.6.1"
+    hooks:
+      - id: mypy
