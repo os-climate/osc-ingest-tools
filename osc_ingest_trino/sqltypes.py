@@ -45,5 +45,8 @@ def create_table_schema_pairs(
     if not isinstance(colmap, dict):
         raise ValueError("colmap must be a dict")
     columns = df.columns.to_list()
-    types = [colmap.get(col, pandas_type_to_sql(str(df[col].dtype), typemap=typemap)) for col in columns]
+    try:
+        types = [colmap.get(col, pandas_type_to_sql(str(df[col].dtype), typemap=typemap)) for col in columns]
+    except ValueError as exc:
+        raise ValueError(f"df.dtypes\n{df.dtypes}\nraised {exc}")
     return ",\n".join([f"{' '*indent}{e[0]} {e[1]}" for e in zip(columns, types)])
