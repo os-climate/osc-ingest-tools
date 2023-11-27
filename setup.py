@@ -32,7 +32,7 @@ setup(
         "pandas",
         "python-dotenv",
         "boto3",
-        "mypy-boto-s3",
+        "boto3-stubs[s3]",
     ],
     entry_points={"console_scripts": []},
 )
