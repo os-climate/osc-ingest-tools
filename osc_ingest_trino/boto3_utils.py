@@ -1,6 +1,9 @@
 import os
+from pathlib import Path
+from typing import Union
 
 import boto3
+from mypy_boto3_s3.service_resource import Bucket
 
 __all__ = [
     "upload_directory_to_s3",
@@ -8,7 +11,7 @@ __all__ = [
 ]
 
 
-def upload_directory_to_s3(path, bucket, prefix, verbose=False):
+def upload_directory_to_s3(path: Union[Path, str], bucket: Bucket, prefix: str, verbose: bool = False) -> None:
     path = str(path)
     prefix = str(prefix)
     for subdir, dirs, files in os.walk(path):
@@ -21,7 +24,7 @@ def upload_directory_to_s3(path, bucket, prefix, verbose=False):
             bucket.upload_file(src, dst)
 
 
-def attach_s3_bucket(env_var_prefix):
+def attach_s3_bucket(env_var_prefix: str) -> Bucket:
     s3 = boto3.resource(
         service_name="s3",
         endpoint_url=os.environ[f"{env_var_prefix}_ENDPOINT"],

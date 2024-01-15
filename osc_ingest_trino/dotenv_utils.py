@@ -8,7 +8,7 @@ __all__ = [
 ]
 
 
-def load_credentials_dotenv():
+def load_credentials_dotenv() -> None:
     # Load some standard environment variables from a dot-env file, if it exists.
     # If no such file can be found, does not fail, and so allows these environment vars to
     # be populated in some other way
