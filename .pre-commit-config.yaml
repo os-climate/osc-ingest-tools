@@ -20,6 +20,6 @@ repos:
         - --select=E, W, F, N
         - --max-line-length=120
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.6.1"
+    rev: "v1.8.0"
     hooks:
       - id: mypy
