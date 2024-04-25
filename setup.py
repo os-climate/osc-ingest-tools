@@ -27,7 +27,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "trino[sqlalchemy]>=0.323",
+        "trino[sqlalchemy]>=0.328",
         "sqlalchemy>=2.0",
         "pandas",
         "python-dotenv",
