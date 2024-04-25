@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="osc-ingest-tools",
-    version="0.5.2",
+    version="0.5.3",
     description="python tools to assist with standardized data ingestion workflows for the OS-Climate project",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -26,6 +26,13 @@ setup(
     ],
     packages=find_packages(),
     include_package_data=True,
-    install_requires=["trino[sqlalchemy]>=0.323", "sqlalchemy>=2.0", "pandas", "python-dotenv", "boto3"],
+    install_requires=[
+        "trino[sqlalchemy]>=0.328",
+        "sqlalchemy>=2.0",
+        "pandas",
+        "python-dotenv",
+        "boto3",
+        "boto3-stubs-lite[s3]",
+    ],
     entry_points={"console_scripts": []},
 )

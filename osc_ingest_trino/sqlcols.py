@@ -1,4 +1,5 @@
 import re
+from typing import List, Union, cast
 
 import pandas as pd
 
@@ -14,9 +15,9 @@ _rmpunc = re.compile(r"[,.()&$/+-]+")
 
 
 # 63 seems to be a common max column name length
-def sql_compliant_name(name, maxlen=63):
+def sql_compliant_name(name: Union[List[str], str], maxlen=63) -> Union[List[str], str]:
     if isinstance(name, list):
-        return [sql_compliant_name(e, maxlen=maxlen) for e in name]
+        return [cast(str, sql_compliant_name(e, maxlen=maxlen)) for e in name]
     w = str(name).casefold().rstrip().lstrip()
     w = w.replace("-", "_")
     w = _rmpunc.sub("", w)
@@ -38,7 +39,7 @@ def sql_compliant_name(name, maxlen=63):
     return w
 
 
-def enforce_sql_column_names(df, inplace=False, maxlen=63):
+def enforce_sql_column_names(df: pd.DataFrame, inplace: bool = False, maxlen: int = 63) -> pd.DataFrame:
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     icols = df.columns.to_list()
@@ -49,7 +50,7 @@ def enforce_sql_column_names(df, inplace=False, maxlen=63):
     return df.rename(columns=rename_map, inplace=inplace)
 
 
-def enforce_partition_column_order(df, pcols, inplace=False):
+def enforce_partition_column_order(df: pd.DataFrame, pcols: List[str], inplace: bool = False) -> pd.DataFrame:
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(pcols, list):
@@ -65,3 +66,4 @@ def enforce_partition_column_order(df, pcols, inplace=False):
         s = df[c]
         df.drop(columns=[c], inplace=True)
         df[c] = s
+    return df
