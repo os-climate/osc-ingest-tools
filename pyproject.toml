@@ -90,6 +90,8 @@ warn_unreachable = true
 ignore_missing_imports = true
 
 [tool.coverage.run]
-source = "src"
-omit = "tests/*"
+source = ["src"]
+omit = ["tests/*"]
 relative_files = true
+
+[tool.pydocstyle]
