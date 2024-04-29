@@ -1,17 +1,72 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "osc-ingest-tools"
+version = "v0.5.3"
+description = "OS-Climate Python tools to assist with standardized data ingestion workflows"
+authors = [
+  { name = "Michael Tiemann", email = "72577720+MichaelTiemannOSC@users.noreply.github.com" },
 ]
-build-backend = "setuptools.build_meta"
+requires-python = "<3.13,>=3.9"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+keywords = ["Climate", "osc-ingest-tools", "Finance"]
+
+classifiers = [
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: Unix",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.9",
+  "Topic :: Office/Business :: Financial",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development",
+]
+
+dependencies = [
+  "trino[sqlalchemy]>=0.323",
+  "sqlalchemy>=2.0",
+  "pandas",
+  "python-dotenv",
+  "boto3"
+]
+
+[project.urls]
+Homepage = "https://github.com/os-climate/osc-ingest-tools"
+Repository = "https://github.com/os-climate/osc-ingest-tools"
+Downloads = "https://github.com/os-climate/osc-ingest-tools/releases"
+"Bug Tracker" = "https://github.com/os-climate/osc-ingest-tools/issues"
+Documentation = "https://github.com/os-climate/osc-ingest-tools/tree/main/docs"
+"Source Code" = "https://github.com/os-climate/osc-ingest-tools"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.scripts]
+pre_release = "scripts/dev-versioning.sh"
+release = "scripts/release-versioning.sh"
+test = "pytest"
+tox = "tox"
+docs = { shell = "cd docs && mkdocs serve", help = "Start the dev server for doc preview" }
+lint = "pre-commit run --all-files"
+complete = { call = "tasks.complete:main", help = "Create autocomplete files for bash and fish" }
+
+[tool.pdm.dev-dependencies]
+test = ["pdm[pytest]", "pytest-cov"]
+tox = ["tox", "tox-pdm>=0.5"]
+docs = ["sphinx>=7.2.6", "sphinx-copybutton>=0.5.2"]
+dev = ["tox>=4.11.3", "tox-pdm>=0.7.0"]
+lint = ["pre-commit"]
 
 [tool.pytest.ini_options]
-testpaths = "tests"
-addopts = "-v"
-
-[tool.mypy]
-warn_unreachable = true
-ignore_missing_imports = true
+testpaths = "tests/"
+addopts = "-v --cov --cov-report html --cov-report term-missing --cov-fail-under 70"
 
 [tool.black]
 line-length = 120
@@ -28,12 +83,11 @@ exclude = '''
 '''
 
 [tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-line_length = 120
+profile = "black"
+
+[tool.mypy]
+warn_unreachable = true
+ignore_missing_imports = true
 
 [tool.coverage.run]
 source = "src"
