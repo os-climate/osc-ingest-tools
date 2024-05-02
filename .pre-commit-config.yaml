@@ -2,6 +2,7 @@
 ci:
   autofix_commit_msg: "Chore: pre-commit autoupdate"
   skip:
+    # pre-commit.ci cannot install WGET, so tomlint must be disabled
     - tomllint
 
 exclude: |
@@ -111,9 +112,13 @@ repos:
   - repo: https://github.com/pycqa/flake8
     rev: "7.0.0"
     hooks:
-    - id: flake8
-    # Ignore all format-related checks as Black takes care of those.
-      args: ["--ignore=E2, W5, F401, E401", "--select=E, W, F, N", "--max-line-length=120"]
+      - id: flake8
+
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: [ "-d", "{rules: {line-length: {max: 120}}, ignore-from-file: [.gitignore],}", ]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: "v1.10.0"
@@ -122,12 +127,6 @@ repos:
         verbose: true
         args: [--show-error-codes]
         additional_dependencies: ["pytest", "types-requests"]
-
-  - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
-    hooks:
-      - id: yamllint
-        args: [ "-d", "{rules: {line-length: {max: 120}}, ignore-from-file: [.gitignore],}", ]
 
   # Check for misspellings in documentation files
   # - repo: https://github.com/codespell-project/codespell
