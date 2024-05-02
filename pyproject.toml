@@ -33,8 +33,7 @@ dependencies = [
   "sqlalchemy>=2.0",
   "pandas",
   "python-dotenv",
-  "boto3",
-  "boto3-stubs-lite[s3]",
+  "boto3"
 ]
 
 [project.urls]
@@ -91,7 +90,7 @@ warn_unreachable = true
 ignore_missing_imports = true
 
 [tool.coverage.run]
-source = ["src"]
+source = ["osc_ingest_trino"]
 omit = ["tests/*"]
 relative_files = true
 
