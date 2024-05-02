@@ -90,7 +90,7 @@ warn_unreachable = true
 ignore_missing_imports = true
 
 [tool.coverage.run]
-source = ["src"]
+source = ["osc_ingest_trino"]
 omit = ["tests/*"]
 relative_files = true
 
