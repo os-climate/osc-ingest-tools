@@ -1,3 +1,5 @@
+"""Functions to simplify use of S3-based data, Pandas dataframes, and Trino SQL tables."""
+
 from .boto3_utils import attach_s3_bucket, upload_directory_to_s3
 from .dotenv_utils import load_credentials_dotenv
 from .sqlcols import (

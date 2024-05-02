@@ -1,3 +1,5 @@
+"""Functions to translate Pandas column names to SQL column names."""
+
 import re
 from typing import List, Union, cast
 
@@ -16,6 +18,7 @@ _rmpunc = re.compile(r"[,.()&$/+-]+")
 
 # 63 seems to be a common max column name length
 def sql_compliant_name(name: Union[List[str], str], maxlen=63) -> Union[List[str], str]:
+    """Convert name to a SQL-compliant table or column name, abbreviating some common words."""
     if isinstance(name, list):
         return [cast(str, sql_compliant_name(e, maxlen=maxlen)) for e in name]
     w = str(name).casefold().rstrip().lstrip()
@@ -40,6 +43,7 @@ def sql_compliant_name(name: Union[List[str], str], maxlen=63) -> Union[List[str
 
 
 def enforce_sql_column_names(df: pd.DataFrame, inplace: bool = False, maxlen: int = 63) -> pd.DataFrame:
+    """Ensure that all column names for df are SQL-compliant."""
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     icols = df.columns.to_list()
@@ -51,6 +55,7 @@ def enforce_sql_column_names(df: pd.DataFrame, inplace: bool = False, maxlen: in
 
 
 def enforce_partition_column_order(df: pd.DataFrame, pcols: List[str], inplace: bool = False) -> pd.DataFrame:
+    """Reorder columns names of df to match the order given by pcols."""
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(pcols, list):

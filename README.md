@@ -2,9 +2,11 @@
 
 python tools to assist with standardized data ingestion workflows
 
+## Installation, Usage, and Release Management
+
 ### Install from PyPi
 
-```
+```python
 pip install osc-ingest-tools
 ```
 
@@ -100,14 +102,14 @@ checks.
 Enabling automatic formatting via [pre-commit](https://pre-commit.com/) is
 recommended:
 
-```
+```shell
 pip install black isort pre-commit
 pre-commit install
 ```
 
 To ensure compliance with static check tools, developers may wish to run;
 
-```
+```shell
 pip install black isort
 # auto-sort imports
 isort .
@@ -117,7 +119,7 @@ black .
 
 Code can then be tested using tox.
 
-```
+```shell
 # run static checks and tests
 tox
 # run only tests
@@ -139,7 +141,7 @@ To release a new version of this library, authorized developers should;
 
 E.g.,
 
-```
+```shell
 git commit -sm "Release v0.3.4"
 git tag v0.3.4
 git push --follow-tags

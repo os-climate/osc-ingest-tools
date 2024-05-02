@@ -1,3 +1,5 @@
+"""Functions to create, ingest, and drop unmanaged Hive tables."""
+
 import shutil
 import uuid
 
@@ -17,6 +19,7 @@ _default_prefix = "trino/{schema}/{table}"
 
 
 def _remove_trailing_slash(s):
+    """Remove trailing slash from s."""
     s = str(s)
     if len(s) == 0:
         return s
@@ -26,10 +29,12 @@ def _remove_trailing_slash(s):
 
 
 def _prefix(pfx, schema, table):
+    """Translate pfx, schema, and table names into S3 bucket name."""
     return _remove_trailing_slash(pfx).format(schema=schema, table=table)
 
 
 def drop_unmanaged_table(catalog, schema, table, engine, bucket, prefix=_default_prefix, verbose=False):
+    """Drop catalog.schema.table from Hive metastore and also delete its S3 backing store."""
     sql = text(f"drop table if exists {catalog}.{schema}.{table}")
     with engine.begin() as cxn:
         qres = cxn.execute(sql)
@@ -40,6 +45,7 @@ def drop_unmanaged_table(catalog, schema, table, engine, bucket, prefix=_default
 
 
 def drop_unmanaged_data(schema, table, bucket, prefix=_default_prefix, verbose=False):
+    """Delete data that may have been orphaned when its table was dropped in Hive metastore."""
     dres = bucket.objects.filter(Prefix=f"{_prefix(prefix, schema, table)}/").delete()
     if verbose:
         print(dres)
@@ -49,6 +55,7 @@ def drop_unmanaged_data(schema, table, bucket, prefix=_default_prefix, verbose=F
 def ingest_unmanaged_parquet(
     df, schema, table, bucket, partition_columns=[], append=True, workdir="/tmp", prefix=_default_prefix, verbose=False
 ):
+    """Ingest data from df into Hive metastore table with backing store bucket."""
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(partition_columns, list):
@@ -83,6 +90,7 @@ def ingest_unmanaged_parquet(
 def unmanaged_parquet_tabledef(
     df, catalog, schema, table, bucket, partition_columns=[], typemap={}, colmap={}, verbose=False
 ):
+    """Return a SQL string that would create a table suitable for ingesting df into Hive metastore backed by bucket."""
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(partition_columns, list):

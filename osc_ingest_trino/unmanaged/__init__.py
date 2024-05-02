@@ -1,3 +1,5 @@
+"""Functions create and clean up unmanaged Hive tables."""
+
 from .unmanaged_hive_ingest import (
     drop_unmanaged_data,
     drop_unmanaged_table,
