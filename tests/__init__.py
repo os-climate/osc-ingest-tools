@@ -1,1 +1,1 @@
-"Empty file to allow pytest-cov to collect data."
+"""Empty file to allow pytest-cov to collect data."""

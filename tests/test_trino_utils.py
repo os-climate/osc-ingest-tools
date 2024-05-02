@@ -1,19 +1,25 @@
 import math
 from datetime import datetime
 from unittest import mock
-import pytest
+from unittest.mock import patch
 
-from osc_ingest_trino import *
+import boto3
+import botocore
+import moto
+import pytest
+from botocore.exceptions import ClientError
+from moto import mock_aws
+
+from osc_ingest_trino import (
+    TrinoBatchInsert,
+    attach_trino_engine,
+    pandas_type_to_sql,
+    sql_compliant_name,
+)
 from osc_ingest_trino.unmanaged import unmanaged_parquet_tabledef
 
-import botocore
-from botocore.exceptions import ClientError
-from unittest.mock import patch
-import boto3
-import moto
 # from os_bucket import OSBucket
 
-from moto import mock_aws
 
 class MyModel:
     def __init__(self, name, value):
@@ -27,12 +33,12 @@ class MyModel:
 
 def test_sql_compliant_name():
     foo_name = sql_compliant_name("foo")
-    assert foo_name=="foo"
+    assert foo_name == "foo"
 
 
 def test_pandas_type_to_sql():
     integer_type = pandas_type_to_sql("int32")
-    assert integer_type=="integer"
+    assert integer_type == "integer"
 
 
 @mock.patch("osc_ingest_trino.trino_utils.trino.auth.JWTAuthentication")
@@ -103,6 +109,7 @@ def test_trino_pandas_insert():
         index=False,
         method=TrinoBatchInsert(batch_size=5, verbose=True),
     )
+
 
 @mock_aws
 def test_unmanaged_parquet_tabledef():
