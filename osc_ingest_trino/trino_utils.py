@@ -1,3 +1,5 @@
+"""Trino interoperability functions."""
+
 import math
 import os
 import uuid
@@ -32,6 +34,13 @@ def attach_trino_engine(
     schema: Optional[str] = None,
     verbose: Optional[bool] = False,
 ) -> Engine:
+    """Return a SQLAlchemy engine object representing a Trino instance.
+
+    env_var_prefix -- a prefix for all environment variables related to the Trino instance.
+    catalog -- the Trino catalog.
+    schema -- the Trino schema.
+    verbose -- if True, print the full string used to connect.
+    """
     sqlstring = "trino://{user}@{host}:{port}".format(
         user=os.environ[f"{env_var_prefix}_USER"],
         host=os.environ[f"{env_var_prefix}_HOST"],
@@ -57,6 +66,12 @@ def attach_trino_engine(
 def _do_sql(
     sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False
 ) -> Optional[Sequence[Row[Any]]]:
+    """Execute SQL query, returning the query result.
+
+    sql -- the SQL query.
+    engine -- the SQLAlchemy engine representing the Trino database.
+    verbose -- if True, print the values returned from executing the string.
+    """
     if type(sql) is not sqlalchemy.sql.elements.TextClause:
         sql = text(str(sql))
     if verbose:
@@ -86,6 +101,22 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     colmap: Dict[str, str] = {},
     verbose: bool = False,
 ) -> None:
+    """Efficiently export a dataframe into a Trino database.
+
+    df -- the dataframe to export.
+    engine -- the SQLAlchemy engine representing the Trino database.
+    catalog -- the Trino catalog.
+    schema -- the Trino schema.
+    table -- the name of the table created in the schema.
+    hive_bucket -- the backing store of the Hive metastore.
+    hive_catalog -- the Hive metastore catalog (where schemas are created).
+    hive_schema -- the Hive metastore schema (where tables will be created).
+    partition_columns -- if not empty, defines the partition columns of the table created.
+    overwrite -- if True, an existing table will be overwritten.
+    typemap -- used to format types that cannot otherwise be properly inferred.
+    colmap -- used to format column names that cannot otherwise be properly inferred.
+    verbose -- if True, print the queries being executed and the results of those queries.
+    """
     uh8 = uuid.uuid4().hex[:8]
     hive_table = f"ingest_temp_{uh8}"
 
@@ -157,6 +188,8 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
 
 
 class TrinoBatchInsert(object):
+    """A class used to bundle together basic Trino parameters."""
+
     def __init__(
         self,
         catalog: Optional[str] = None,
@@ -165,6 +198,7 @@ class TrinoBatchInsert(object):
         optimize: bool = False,
         verbose: bool = False,
     ):
+        """Initialize TrinoBatchInsert objects."""
         self.catalog = catalog
         self.schema = schema
         self.batch_size = batch_size
@@ -175,6 +209,7 @@ class TrinoBatchInsert(object):
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
     # https://pandas.pydata.org/docs/user_guide/io.html#io-sql-method
     def __call__(self, sqltbl: Table, dbcxn: Connection, columns: List[str], data_iter: List[Tuple]) -> None:
+        """Implement `callable` interface for row-by-row insertion."""
         fqname = self._full_table_name(sqltbl)
         batch: List[str] = []
         self.ninserts = 0
@@ -201,6 +236,7 @@ class TrinoBatchInsert(object):
                 print(f"execute optimize: {x}")
 
     def _do_insert(self, dbcxn: Connection, fqname: str, batch: List[str]) -> None:
+        """Implement actual row-by-row insertion of BATCH data into table FQNAME using DBCXN database connection."""
         if self.verbose:
             print(f"inserting {len(batch)} records")
             TrinoBatchInsert._print_batch(batch)
@@ -218,6 +254,7 @@ class TrinoBatchInsert(object):
             print(f"batch insert result: {x}")
 
     def _full_table_name(self, sqltbl: Table) -> str:
+        """Return fully qualified table name for SQLTBL table within this TrinoBatchInsert object."""
         # start with table name
         name: str = f"{sqltbl.name}"
         # prepend schema - allow override from this class
@@ -231,6 +268,7 @@ class TrinoBatchInsert(object):
 
     @staticmethod
     def _sqlform(x: Any) -> str:
+        """Format the value of x so it can appear in a SQL Values context."""
         if x is None:
             return "NULL"
         if isinstance(x, str):
@@ -254,6 +292,7 @@ class TrinoBatchInsert(object):
 
     @staticmethod
     def _print_batch(batch: List[str]) -> None:
+        """For batch, a list of SQL query lines, print up to the first 5 such."""
         if len(batch) > 5:
             print("\n".join(f"  {e}" for e in batch[:3]))
             print("  ...")
