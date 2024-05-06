@@ -1,13 +1,8 @@
 import math
 from datetime import datetime
 from unittest import mock
-from unittest.mock import patch
 
 import boto3
-import botocore
-import moto
-import pytest
-from botocore.exceptions import ClientError
 from moto import mock_aws
 
 from osc_ingest_trino import (
