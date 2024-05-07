@@ -17,8 +17,6 @@ jobs:
 
   build:
     name: "🐍 Build packages"
-    # Only publish on tag pushes
-    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       # IMPORTANT: mandatory for Sigstore
@@ -65,8 +63,6 @@ jobs:
 
   github:
     name: "📦 Publish to GitHub"
-    # Only publish on tag pushes
-    if: startsWith(github.ref, 'refs/tags/')
     needs:
       - build
     runs-on: ubuntu-latest
