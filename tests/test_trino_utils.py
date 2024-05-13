@@ -2,7 +2,38 @@ import math
 from datetime import datetime
 from unittest import mock
 
-from osc_ingest_trino import TrinoBatchInsert, attach_trino_engine
+import boto3
+from moto import mock_aws
+
+from osc_ingest_trino import (
+    TrinoBatchInsert,
+    attach_trino_engine,
+    pandas_type_to_sql,
+    sql_compliant_name,
+)
+from osc_ingest_trino.unmanaged import unmanaged_parquet_tabledef
+
+# from os_bucket import OSBucket
+
+
+class MyModel:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def save(self):
+        s3 = boto3.client("s3", region_name="us-east-1")
+        s3.put_object(Bucket="mybucket", Key=self.name, Body=self.value)
+
+
+def test_sql_compliant_name():
+    foo_name = sql_compliant_name("foo")
+    assert foo_name == "foo"
+
+
+def test_pandas_type_to_sql():
+    integer_type = pandas_type_to_sql("int32")
+    assert integer_type == "integer"
 
 
 @mock.patch("osc_ingest_trino.trino_utils.trino.auth.JWTAuthentication")
@@ -23,6 +54,9 @@ def test_attach_trino_engine(mock_engine, mock_trino_auth, monkeypatch):
     mock_engine.assert_called_with(
         "trino://tester@example:8000/ex_catalog/ex_schema", connect_args={"auth": "yep", "http_scheme": "https"}
     )
+
+
+# from os_bucket import OSBucket
 
 
 def test_trino_batch_insert():
@@ -70,3 +104,18 @@ def test_trino_pandas_insert():
         index=False,
         method=TrinoBatchInsert(batch_size=5, verbose=True),
     )
+
+
+@mock_aws
+def test_unmanaged_parquet_tabledef():
+    import pandas as pd
+
+    df = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]}).convert_dtypes()
+
+    conn = boto3.resource("s3", region_name="us-east-1")
+    # We need to create the bucket since this is all in Moto's 'virtual' AWS account
+    bucket = conn.Bucket("mybucket")
+    bucket.create()
+
+    tabledef = unmanaged_parquet_tabledef(df, "catalog", "schema", "table", bucket, partition_columns=["a", "b"])
+    print(tabledef)

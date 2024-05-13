@@ -1,3 +1,5 @@
+"""Functions to translate Pandas dataframes to SQL equivalents."""
+
 from typing import Dict
 
 import pandas as pd
@@ -25,6 +27,7 @@ _p2smap = {
 
 
 def pandas_type_to_sql(pt: str, typemap: Dict[str, str] = {}):
+    """Return the SQL type corresponding to the pandas type `pt` (using special mappings, if any, from `typemap`)."""
     if not isinstance(typemap, dict):
         raise ValueError("typemap must be a dict")
     # user defined typemap overrides _p2smap
@@ -40,6 +43,13 @@ def create_table_schema_pairs(
     colmap: Dict[str, str] = {},
     indent: int = 4,
 ) -> str:
+    """Create SQL column, type pairs that can appear in a CREATE TABLE operation.
+
+    df -- the dataframe to be rendered as a SQL table
+    typemap -- mappings from dtypes to SQL types above and beyond our defaults
+    colmap -- mappings of df column names to SQL column names if not using defaults
+    indent -- how many spaces of indent to make our SQL declarations pretty
+    """
     if not isinstance(df, pd.DataFrame):
         raise ValueError("df must be a pandas DataFrame")
     if not isinstance(colmap, dict):

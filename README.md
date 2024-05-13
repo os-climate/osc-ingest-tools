@@ -2,7 +2,9 @@
 
 python tools to assist with standardized data ingestion workflows
 
-## Install from PyPi
+## Installation, Usage, and Release Management
+
+### Install from PyPi
 
 ```console
 pip install osc-ingest-tools
@@ -118,6 +120,7 @@ black .
 Code can then be tested using tox:
 
 ```console
+=======
 # run static checks and tests
 tox
 # run only tests
