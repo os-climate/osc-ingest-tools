@@ -65,11 +65,11 @@ repos:
       - id: markdownlint
         args: ["--fix"]
 
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.4.2
-    hooks:
-      - id: black
-      - id: black-jupyter
+  # - repo: https://github.com/psf/black-pre-commit-mirror
+  #   rev: 24.4.2
+  #   hooks:
+  #     - id: black
+  #     - id: black-jupyter
 
   # - repo: https://github.com/tomcatling/black-nb
   #   rev: '0.7'
