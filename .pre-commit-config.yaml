@@ -65,16 +65,16 @@ repos:
       - id: markdownlint
         args: ["--fix"]
 
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.4.2
-    hooks:
-      - id: black
-      - id: black-jupyter
+  # - repo: https://github.com/psf/black-pre-commit-mirror
+  #   rev: 24.4.2
+  #   hooks:
+  #     - id: black
+  #     - id: black-jupyter
 
-  - repo: https://github.com/tomcatling/black-nb
-    rev: '0.7'
-    hooks:
-      - id: black-nb
+  # - repo: https://github.com/tomcatling/black-nb
+  #   rev: '0.7'
+  #   hooks:
+  #     - id: black-nb
 
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
@@ -112,13 +112,8 @@ repos:
   - repo: https://github.com/pycqa/flake8
     rev: "7.0.0"
     hooks:
-    - id: flake8
-    # Ignore all format-related checks as Black takes care of those.
-      args:
-        - --ignore=E2, W5, F401, E401
-        - --select=E, W, F, N
-        - --max-line-length=120
-      additional_dependencies:
+      - id: flake8
+        additional_dependencies:
         - pep8-naming
 
   - repo: https://github.com/adrienverge/yamllint.git
@@ -134,6 +129,15 @@ repos:
         verbose: true
         args: [--show-error-codes]
         additional_dependencies: ["pytest", "types-requests"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.3
+    hooks:
+      - id: ruff
+        files: ^(scripts|tests|custom_components)/.+\.py$
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        files: ^(scripts|tests|custom_components)/.+\.py$
 
   # Check for misspellings in documentation files
   # - repo: https://github.com/codespell-project/codespell
