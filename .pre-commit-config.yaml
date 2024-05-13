@@ -71,10 +71,10 @@ repos:
       - id: black
       - id: black-jupyter
 
-  - repo: https://github.com/tomcatling/black-nb
-    rev: '0.7'
-    hooks:
-      - id: black-nb
+  # - repo: https://github.com/tomcatling/black-nb
+  #   rev: '0.7'
+  #   hooks:
+  #     - id: black-nb
 
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
@@ -127,6 +127,15 @@ repos:
         verbose: true
         args: [--show-error-codes]
         additional_dependencies: ["pytest", "types-requests"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.3
+    hooks:
+      - id: ruff
+        files: ^(scripts|tests|custom_components)/.+\.py$
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        files: ^(scripts|tests|custom_components)/.+\.py$
 
   # Check for misspellings in documentation files
   # - repo: https://github.com/codespell-project/codespell
