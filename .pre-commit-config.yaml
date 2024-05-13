@@ -112,7 +112,14 @@ repos:
   - repo: https://github.com/pycqa/flake8
     rev: "7.0.0"
     hooks:
-      - id: flake8
+    - id: flake8
+    # Ignore all format-related checks as Black takes care of those.
+      args:
+        - --ignore=E2, W5, F401, E401
+        - --select=E, W, F, N
+        - --max-line-length=120
+      additional_dependencies:
+        - pep8-naming
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.35.1
