@@ -60,7 +60,7 @@ repos:
 
   # Lint: Markdown
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
+    rev: v0.40.0
     hooks:
       - id: markdownlint
         args: ["--fix"]
@@ -96,6 +96,7 @@ repos:
     rev: 6.3.0
     hooks:
       - id: pydocstyle
+        additional_dependencies: ["tomli"]
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
@@ -117,7 +118,7 @@ repos:
         - --ignore=E2, W5, F401, E401
         - --select=E, W, F, N
         - --max-line-length=120
-    additional_dependencies:
+      additional_dependencies:
         - pep8-naming
 
   - repo: https://github.com/pre-commit/mirrors-mypy

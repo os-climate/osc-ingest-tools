@@ -1,9 +1,10 @@
 # osc-ingest-tools
+
 python tools to assist with standardized data ingestion workflows
 
-### Install from PyPi
+## Install from PyPi
 
-```
+```console
 pip install osc-ingest-tools
 ```
 
@@ -42,10 +43,10 @@ pip install osc-ingest-tools
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 3 entries, 0 to 2
 Data columns (total 2 columns):
- #   Column        Non-Null Count  Dtype 
----  ------        --------------  ----- 
+ #   Column        Non-Null Count  Dtype
+---  ------        --------------  -----
  0   first_name    3 non-null      string
- 1   age_in_years  3 non-null      Int64 
+ 1   age_in_years  3 non-null      Int64
 dtypes: Int64(1), string(1)
 memory usage: 179.0 bytes
 
@@ -55,10 +56,11 @@ memory usage: 179.0 bytes
     first_name varchar,
     age_in_years bigint
 
->>> 
+>>>
 ```
 
 #### Adding custom type mappings to `create_table_schema_pairs`
+
 ```python
 >>> df = pd.DataFrame(data, columns = ['First Name', 'Age In Years'])
 
@@ -68,10 +70,10 @@ memory usage: 179.0 bytes
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 3 entries, 0 to 2
 Data columns (total 2 columns):
- #   Column        Non-Null Count  Dtype 
----  ------        --------------  ----- 
+ #   Column        Non-Null Count  Dtype
+---  ------        --------------  -----
  0   first_name    3 non-null      object
- 1   age_in_years  3 non-null      int64 
+ 1   age_in_years  3 non-null      int64
 dtypes: int64(1), object(1)
 memory usage: 176.0+ bytes
 
@@ -87,7 +89,7 @@ memory usage: 176.0+ bytes
 ### Development
 
 Patches may be contributed via pull requests to
-https://github.com/os-climate/osc-ingest-tools.
+<https://github.com/os-climate/osc-ingest-tools>.
 
 All changes must pass the automated test suite, along with various static
 checks.
@@ -97,13 +99,15 @@ checks.
 
 Enabling automatic formatting via [pre-commit](https://pre-commit.com/) is
 recommended:
-```
+
+```console
 pip install black isort pre-commit
 pre-commit install
 ```
 
 To ensure compliance with static check tools, developers may wish to run;
-```
+
+```console
 pip install black isort
 # auto-sort imports
 isort .
@@ -111,8 +115,9 @@ isort .
 black .
 ```
 
-Code can then be tested using tox.
-```
+Code can then be tested using tox:
+
+```console
 # run static checks and tests
 tox
 # run only tests
@@ -124,14 +129,17 @@ tox -e cov
 ```
 
 ### Releasing
+
 To release a new version of this library, authorized developers should;
+
 - Prepare a signed release commit updating `version` in setup.py
 - Tag the commit using [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
-prepended with "v"
+  prepended with "v"
 - Push the tag
 
 E.g.,
-```
+
+```console
 git commit -sm "Release v0.3.4"
 git tag v0.3.4
 git push --follow-tags
