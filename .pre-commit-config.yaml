@@ -127,11 +127,11 @@ repos:
     hooks:
       - id: mypy
         verbose: true
-        args: [--show-error-codes]
+        args: ["--show-error-codes", "--install-types", "--non-interactive"]
         additional_dependencies: ["pytest", "types-requests"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.3
+    rev: v0.4.4
     hooks:
       - id: ruff
         files: ^(scripts|tests|custom_components)/.+\.py$
