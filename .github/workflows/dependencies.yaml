@@ -1,0 +1,34 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2024 The Linux Foundation
+
+name: "🐍 Update Dependencies"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 1 * *"
+  push:
+    branches:
+      - "main"
+      - "master"
+    paths:
+      - "!pdm.lock"
+      - "!.github/**"
+
+env:
+  python-version: 3.11
+
+permissions: {}
+
+jobs:
+  python-dependencies:
+    name: "Update Dependencies"
+    # yamllint disable-line rule:line-length
+    uses: os-climate/osc-github-devops/.github/workflows/reuse-dependencies.yaml@45cee44c1a0bfdc8e64f94cf32c833ef61f95a50 # 2025-02-25
+    permissions:
+      # IMPORTANT: mandatory to raise the PR
+      id-token: write
+      pull-requests: write
+      repository-projects: write
+      contents: write
