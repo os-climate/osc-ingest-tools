@@ -15,7 +15,9 @@ def load_credentials_dotenv() -> None:
 
     If no such file can be found, do not raise, allowing these environment vars to be populated in some other way.
     """
-    dotenv_dir = os.environ.get("CREDENTIAL_DOTENV_DIR", os.environ.get("PWD", "/opt/app-root/src"))
+    dotenv_dir = os.environ.get(
+        "CREDENTIAL_DOTENV_DIR", os.environ.get("PWD", "/opt/app-root/src")
+    )
     dotenv_path = pathlib.Path(dotenv_dir) / "credentials.env"
     if os.path.exists(dotenv_path):
         load_dotenv(dotenv_path=dotenv_path, override=True)

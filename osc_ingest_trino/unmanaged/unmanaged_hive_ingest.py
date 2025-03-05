@@ -33,7 +33,9 @@ def _prefix(pfx, schema, table):
     return _remove_trailing_slash(pfx).format(schema=schema, table=table)
 
 
-def drop_unmanaged_table(catalog, schema, table, engine, bucket, prefix=_default_prefix, verbose=False):
+def drop_unmanaged_table(
+    catalog, schema, table, engine, bucket, prefix=_default_prefix, verbose=False
+):
     """Drop catalog.schema.table from Hive metastore and also delete its S3 backing store."""
     sql = text(f"drop table if exists {catalog}.{schema}.{table}")
     with engine.begin() as cxn:
@@ -53,7 +55,15 @@ def drop_unmanaged_data(schema, table, bucket, prefix=_default_prefix, verbose=F
 
 
 def ingest_unmanaged_parquet(
-    df, schema, table, bucket, partition_columns=[], append=True, workdir="/tmp", prefix=_default_prefix, verbose=False
+    df,
+    schema,
+    table,
+    bucket,
+    partition_columns=[],
+    append=True,
+    workdir="/tmp",
+    prefix=_default_prefix,
+    verbose=False,
 ):
     """Ingest data from df into Hive metastore table with backing store bucket."""
     if not isinstance(df, pd.DataFrame):
@@ -88,7 +98,15 @@ def ingest_unmanaged_parquet(
 
 
 def unmanaged_parquet_tabledef(
-    df, catalog, schema, table, bucket, partition_columns=[], typemap={}, colmap={}, verbose=False
+    df,
+    catalog,
+    schema,
+    table,
+    bucket,
+    partition_columns=[],
+    typemap={},
+    colmap={},
+    verbose=False,
 ):
     """Return a SQL string that would create a table suitable for ingesting df into Hive metastore backed by bucket."""
     if not isinstance(df, pd.DataFrame):
@@ -103,7 +121,9 @@ def unmanaged_parquet_tabledef(
     tabledef += ") with (\n    format = 'parquet',\n"
     if len(partition_columns) > 0:
         tabledef += f"    partitioned_by = array{partition_columns},\n"
-    tabledef += f"    external_location = 's3a://{bucket.name}/trino/{schema}/{table}/'\n)"
+    tabledef += (
+        f"    external_location = 's3a://{bucket.name}/trino/{schema}/{table}/'\n)"
+    )
 
     if verbose:
         print(tabledef)

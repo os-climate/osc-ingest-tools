@@ -13,7 +13,9 @@ __all__ = [
 ]
 
 
-def upload_directory_to_s3(path: Union[Path, str], bucket: Bucket, prefix: str, verbose: bool = False) -> None:
+def upload_directory_to_s3(
+    path: Union[Path, str], bucket: Bucket, prefix: str, verbose: bool = False
+) -> None:
     """Upload files to an S3 bucket.
 
     path -- the directory containing all files to be uploaded.
