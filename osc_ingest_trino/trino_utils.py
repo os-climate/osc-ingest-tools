@@ -53,7 +53,10 @@ def attach_trino_engine(
             raise ValueError("connection schema specified without a catalog")
         sqlstring += f"/{schema}"
 
-    sqlargs = {"auth": trino.auth.JWTAuthentication(os.environ[f"{env_var_prefix}_PASSWD"]), "http_scheme": "https"}
+    sqlargs = {
+        "auth": trino.auth.JWTAuthentication(os.environ[f"{env_var_prefix}_PASSWD"]),
+        "http_scheme": "https",
+    }
 
     if verbose:
         print(f"using connect string: {sqlstring}")
@@ -64,7 +67,9 @@ def attach_trino_engine(
 
 
 def _do_sql(
-    sql: Union[sqlalchemy.sql.elements.TextClause, str], engine: Engine, verbose: bool = False
+    sql: Union[sqlalchemy.sql.elements.TextClause, str],
+    engine: Engine,
+    verbose: bool = False,
 ) -> Optional[Sequence[Row[Any]]]:
     """Execute SQL query, returning the query result.
 
@@ -145,13 +150,22 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
     if verbose:
         print(f"\nstaging dataframe parquet to s3 {hive_bucket.name}")
     oscu.ingest_unmanaged_parquet(
-        dfw, hive_schema, hive_table, hive_bucket, partition_columns=partition_columns, verbose=verbose
+        dfw,
+        hive_schema,
+        hive_table,
+        hive_bucket,
+        partition_columns=partition_columns,
+        verbose=verbose,
     )
 
     try:
         if verbose:
-            print(f"\ndeclaring intermediate hive table {hive_catalog}.{hive_schema}.{hive_table}")
-        tabledef = f"create table if not exists {hive_catalog}.{hive_schema}.{hive_table} (\n"
+            print(
+                f"\ndeclaring intermediate hive table {hive_catalog}.{hive_schema}.{hive_table}"
+            )
+        tabledef = (
+            f"create table if not exists {hive_catalog}.{hive_schema}.{hive_table} (\n"
+        )
         tabledef += f"{columnschema}\n"
         tabledef += ") with (\n    format = 'parquet',\n"
         if len(partition_columns) > 0:
@@ -162,7 +176,9 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
         if verbose:
             print("\nsyncing partition metadata on intermediate hive table")
         if len(partition_columns) > 0:
-            sql = text(f"call {hive_catalog}.system.sync_partition_metadata('{hive_schema}', '{hive_table}', 'FULL')")
+            sql = text(
+                f"call {hive_catalog}.system.sync_partition_metadata('{hive_schema}', '{hive_table}', 'FULL')"
+            )
             _do_sql(sql, engine, verbose=verbose)
 
         if overwrite:
@@ -172,18 +188,30 @@ def fast_pandas_ingest_via_hive(  # noqa: C901
             _do_sql(sql, engine, verbose=verbose)
 
         if verbose:
-            print(f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {fq_tablename}")
-        sql = text(f"insert into {fq_tablename}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}")
+            print(
+                f"\ntransferring data: {hive_catalog}.{hive_schema}.{hive_table} -> {fq_tablename}"
+            )
+        sql = text(
+            f"insert into {fq_tablename}\nselect * from {hive_catalog}.{hive_schema}.{hive_table}"
+        )
         _do_sql(sql, engine, verbose=verbose)
 
         if verbose:
-            print(f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}")
-        oscu.drop_unmanaged_table(hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose)
+            print(
+                f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}"
+            )
+        oscu.drop_unmanaged_table(
+            hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose
+        )
     except SQLAlchemyError:
         # Clean up table that will otherwise be orphaned
         if verbose:
-            print(f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}")
-        oscu.drop_unmanaged_table(hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose)
+            print(
+                f"\ndeleting table and data for intermediate table {hive_catalog}.{hive_schema}.{hive_table}"
+            )
+        oscu.drop_unmanaged_table(
+            hive_catalog, hive_schema, hive_table, engine, hive_bucket, verbose=verbose
+        )
         raise
 
 
@@ -208,7 +236,13 @@ class TrinoBatchInsert(object):
     # conforms to signature expected by pandas 'callable' value for method kw arg
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
     # https://pandas.pydata.org/docs/user_guide/io.html#io-sql-method
-    def __call__(self, sqltbl: Table, dbcxn: Connection, columns: List[str], data_iter: List[Tuple]) -> None:
+    def __call__(
+        self,
+        sqltbl: Table,
+        dbcxn: Connection,
+        columns: List[str],
+        data_iter: List[Tuple],
+    ) -> None:
         """Implement `callable` interface for row-by-row insertion."""
         fqname = self._full_table_name(sqltbl)
         batch: List[str] = []
