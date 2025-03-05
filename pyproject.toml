@@ -1,11 +1,11 @@
 [project]
 name = "osc-ingest-tools"
-version = "v0.5.3"
+version = "v0.5.4"
 description = "OS-Climate Python tools to assist with standardized data ingestion workflows"
 authors = [
   { name = "Michael Tiemann", email = "72577720+MichaelTiemannOSC@users.noreply.github.com" },
 ]
-requires-python = "<3.13,>=3.9"
+requires-python = "<3.13,>=3.10"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 keywords = ["Climate", "osc-ingest-tools", "Finance"]
@@ -20,9 +20,9 @@ classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.9",
   "Topic :: Office/Business :: Financial",
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development",
