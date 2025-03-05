@@ -1,6 +1,6 @@
 [project]
 name = "osc-ingest-tools"
-version = "v0.5.4"
+version = "v0.5.5"
 description = "OS-Climate Python tools to assist with standardized data ingestion workflows"
 authors = [
   { name = "Michael Tiemann", email = "72577720+MichaelTiemannOSC@users.noreply.github.com" },
