@@ -4,6 +4,7 @@
 
 name: "🐍 Update Dependencies"
 
+# yamllint disable-line rule:truthy
 on:
   workflow_dispatch:
   schedule:

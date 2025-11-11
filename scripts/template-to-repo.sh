@@ -13,7 +13,7 @@ ALT_TEMPLATE_NAME="${TEMPLATE_NAME//-/_}"
 # Renames files/folders containing template name
 rename_object() {
     if [ $# -ne 1 ]; then
-        echo "Function requires an argumeent: rename_object [filesystem object]"; exit 1
+        echo "Function requires an argument: rename_object [filesystem object]"; exit 1
     else
         FS_OBJECT="$1"
     fi

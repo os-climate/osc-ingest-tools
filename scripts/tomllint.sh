@@ -5,7 +5,7 @@
 status_code="0"
 TAPLO_URL=https://github.com/tamasfe/taplo/releases/download/0.8.1
 
-# Process commmand-line arguments
+# Process command-line arguments
 if [ $# -eq 0 ]; then
     TARGET=$(pwd)
 elif [ $# -eq 1 ]; then

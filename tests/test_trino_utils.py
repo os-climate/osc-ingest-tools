@@ -66,7 +66,7 @@ def test_trino_batch_insert():
     # mock up an sqlalchemy table
     tbl = mock.MagicMock()
     tbl.name = "test"
-    # mock up an sqlalchemy Connnection
+    # mock up an sqlalchemy Connection
     cxn = mock.MagicMock()
     # tuple data, in form supplied to __call__ as specified in 'method' param docs:
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
@@ -107,7 +107,7 @@ def test_trino_pandas_insert():
     # mock up an sqlalchemy table
     tbl = mock.MagicMock()
     tbl.name = "test_pandas"
-    # mock up an sqlalchemy Connnection
+    # mock up an sqlalchemy Connection
     cxn = mock.MagicMock()
     df = pd.DataFrame(
         {

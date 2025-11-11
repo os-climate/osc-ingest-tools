@@ -1,138 +1,69 @@
 ---
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2024 The Linux Foundation
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 ci:
-  autofix_commit_msg: "Chore: pre-commit.ci automated update"
+  skip: [gha-workflow-linter]
+  autofix_commit_msg: |
+    Chore: pre-commit autofixes
 
-exclude: |
-  (?x)^(
-      docs\/conf.py|
-      dco-signoffs/$
-  )$
+    Signed-off-by: pre-commit-ci[bot] <pre-commit-ci@users.noreply.github.com>
+  autoupdate_commit_msg: |
+    Chore: pre-commit autoupdate
+
+    Signed-off-by: pre-commit-ci[bot] <pre-commit-ci@users.noreply.github.com>
+
+exclude: "^docs/conf.py"
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
+      - id: trailing-whitespace
       - id: check-added-large-files
       - id: check-ast
-      - id: check-builtin-literals
-      - id: check-case-conflict
-      - id: check-docstring-first
-      - id: check-executables-have-shebangs
-      - id: check-illegal-windows-names
       - id: check-json
       - id: check-merge-conflict
-      - id: check-shebang-scripts-are-executable
-      - id: check-symlinks
-      - id: check-toml
-      - id: check-vcs-permalinks
       - id: check-xml
       - id: check-yaml
       - id: debug-statements
-      - id: destroyed-symlinks
-      - id: detect-aws-credentials
-        args: ["--allow-missing-credentials"]
-      # - id: double-quote-string-fixer
-      - id: detect-private-key
       - id: end-of-file-fixer
-      - id: file-contents-sorter
-      - id: fix-byte-order-marker
-      - id: forbid-new-submodules
-      - id: forbid-submodules
+      - id: requirements-txt-fixer
       - id: mixed-line-ending
         args: ["--fix=lf"]
-      - id: name-tests-test
-        args: ["--pytest-test-first"]
       - id: no-commit-to-branch
-      # - id: pretty-format-json
-      - id: requirements-txt-fixer
-      - id: sort-simple-yaml
-        # Without specifying files, the above is inactive
-        # files: ^config/simple/
-      - id: trailing-whitespace
-
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
-    hooks:
-      - id: prettier
-        args: ["--no-error-on-unmatched-pattern", "--ignore-unknown"]
-
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.45.0
-    hooks:
-      - id: markdownlint
-        args: ["--fix"]
+        args:
+          - --branch=dev
+          - --branch=master
+          - --branch=main
+          - --branch=rc
+          - --branch=production
 
   - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.19.1
+    rev: acc9d9de6369b76d22cb4167029d2035e8730b98 # frozen: v0.19.1
     hooks:
       - id: gitlint
-        args: ["-c body-max-line-length=120", "-c title-max-length=120"]
-
-  - repo: https://github.com/openstack/bashate
-    rev: 2.1.1
-    hooks:
-      - id: bashate
-        args: ["--ignore=E006,E011"]
-
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
-    hooks:
-      - id: shellcheck
-        args: ["-x"] # Check external files
-
-  - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
-    rev: v1.7.8.24
-    hooks:
-      - id: actionlint
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.37.1
+    rev: 79a6b2b1392eaf49cdd32ac4f14be1a809bbd8f7 # frozen: v1.37.1
     hooks:
       - id: yamllint
         types: [yaml]
-        args:
-          [
-            "-d",
-            "{rules: {line-length: {max: 100}}, ignore-from-file: [.gitignore],}",
-          ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.4
+    rev: aad66557af3b56ba6d4d69cd1b6cba87cef50cbb  # frozen: v0.14.3
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix, --config=pyproject.toml]
+        files: ^(src|tests|scripts)/.+\.py$
+        args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
-
-  - repo: local
-    hooks:
-      - id: mypy-cache
-        name: "create mypy cache"
-        language: system
-        pass_filenames: false
-        entry: bash -c 'if [ ! -d .mypy_cache ]; then /bin/mkdir .mypy_cache; fi; exit 0'
-
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
-    hooks:
-      - id: validate-pyproject
-        # Optional extra validations from SchemaStore:
-        additional_dependencies: ["validate-pyproject-schema-store[all]"]
+        files: ^(src|tests|scripts)/.+\.py$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.18.2"
+    rev: 9f70dc58c23dfcca1b97af99eaeee3140a807c7e  # frozen: v1.18.2
     hooks:
       - id: mypy
-        verbose: true
-        args: ["--show-error-codes", "--install-types", "--non-interactive"]
-        additional_dependencies: ["pytest", "types-requests"]
-
-  # - repo: https://github.com/fsfe/reuse-tool
-  #   rev: v5.0.2
-  #   hooks:
-  #     - id: reuse
+        additional_dependencies: [types-requests]
 
   # - repo: https://github.com/btford/write-good
   #   rev: ab66ce10136dfad5146e69e70f82a3efac8842c1 # frozen: v1.0.8
@@ -140,15 +71,53 @@ repos:
   #     - id: write-good
   #       files: "\\.(rst|md|markdown|mdown|mkdn)$"
 
-  # Check for misspellings in documentation files
-  # - repo: https://github.com/codespell-project/codespell
-  #   rev: v2.2.2
-  #   hooks:
-  #   - id: codespell
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: 745eface02aef23e168a8afb6b5737818efbea95  # frozen: v0.11.0.1
+    hooks:
+      - id: shellcheck
 
-  # Automatically upgrade Python syntax for newer versions
-  # - repo: https://github.com/asottile/pyupgrade
-  #   rev: v3.15.0
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: 192ad822316c3a22fb3d3cc8aa6eafa0b8488360 # frozen: v0.45.0
+    hooks:
+      - id: markdownlint
+        args: ["--fix"]
+
+  # - repo: https://github.com/fsfe/reuse-tool
+  #   rev: 9fabf9eb815a57aac116b435e8346c200cdb8604  # frozen: v6.2.0
   #   hooks:
-  #     - id: pyupgrade
-  #       args: ['--py37-plus']
+  #     - id: reuse
+
+  # Replaces: https://github.com/rhysd/actionlint
+  # Permits actionlint to run both locally and with precommit.ci/GitHub
+  - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
+    rev: 2773c7d04be5d0ceb075f215b6d0a4eacd4a432b  # frozen: v1.7.8.24
+    hooks:
+      - id: actionlint
+
+  # Check for misspellings in documentation files
+  - repo: https://github.com/codespell-project/codespell
+    rev: 63c8f8312b7559622c0d82815639671ae42132ac # frozen: v2.4.1
+    hooks:
+      - id: codespell
+        args: ["--ignore-words=.codespell"]
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema.git
+    rev: 83b816d020105076daac266dbf6bfed199a2da93  # frozen: 0.34.1
+    hooks:
+      - id: check-github-actions
+      - id: check-github-workflows
+      - id: check-jsonschema
+        name: Check GitHub Workflows set timeout-minutes
+        args:
+          - --builtin-schema
+          - github-workflows-require-timeout
+        files: ^\.github/workflows/[^/]+$
+        types:
+          - yaml
+      - id: check-readthedocs
+
+  - repo: https://github.com/modeseven-lfit/gha-workflow-linter
+    rev: 19d280b4facd814e660873ce738e09da457eb1c0  # frozen: v0.1.8
+    hooks:
+      - id: gha-workflow-linter
+        args: [lint, .]
