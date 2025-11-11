@@ -42,7 +42,7 @@ jobs:
         - name: "Build Python project"
           id: python-build
           # yamllint disable-line rule:line-length
-          uses: os-climate/osc-github-devops/.github/actions/python-build-action@78a987dfd2c648faa346e273603b475876885469 # 2025-02-25
+          uses: os-climate/osc-github-devops/.github/actions/python-build-action@3313b414f41fe53df537e3dee4a27015e97801e3 # 2025-02-25
           with:
             tag: ${{ needs.repository.outputs.build_tag }}
             attestations: "true"
@@ -137,7 +137,7 @@ jobs:
       - name: "Checking package index for build/release"
         id: check-remote
         # yamllint disable-line rule:line-length
-        uses: os-climate/osc-github-devops/.github/actions/pypi-version-check-action@78a987dfd2c648faa346e273603b475876885469 # 2025-03-03
+        uses: os-climate/osc-github-devops/.github/actions/pypi-version-check-action@3313b414f41fe53df537e3dee4a27015e97801e3 # 2025-03-03
         with:
           index_url: https://test.pypi.org/simple
           package_name: ${{ steps.naming.outputs.python_project_name }}
@@ -197,7 +197,7 @@ jobs:
       - name: "Checking package index for build/release"
         id: check-remote
         # yamllint disable-line rule:line-length
-        uses: os-climate/osc-github-devops/.github/actions/pypi-version-check-action@78a987dfd2c648faa346e273603b475876885469 # 2025-03-03
+        uses: os-climate/osc-github-devops/.github/actions/pypi-version-check-action@3313b414f41fe53df537e3dee4a27015e97801e3 # 2025-03-03
         with:
           package_name: ${{ steps.naming.outputs.python_project_name }}
           package_version: ${{ needs.repository.outputs.build_tag }}
@@ -229,7 +229,7 @@ jobs:
     steps:
       - name: "GitHub Release"
         # yamllint disable-line rule:line-length
-        uses: os-climate/osc-github-devops/.github/actions/github-release-action@78a987dfd2c648faa346e273603b475876885469 # 2025-02-25
+        uses: os-climate/osc-github-devops/.github/actions/github-release-action@3313b414f41fe53df537e3dee4a27015e97801e3 # 2025-02-25
         with:
           project_name: ${{ env.python_project_name }}
           artefact_path: "dist"
