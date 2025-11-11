@@ -1,6 +1,6 @@
 ---
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2024 The Linux Foundation <https://linuxfoundation.org>
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 name: "📰 Publish Documentation"
 
@@ -29,7 +29,7 @@ jobs:
       contents: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+    timeout-minutes: 15
     steps:
       - name: "Checkout Repository"
         # yamllint disable-line rule:line-length
@@ -44,14 +44,14 @@ jobs:
       - name: "Check documentation dependencies"
         id: docs-requirements
         # yamllint disable-line rule:line-length
-        uses: os-climate/osc-github-devops/.github/actions/path-check-action@78a987dfd2c648faa346e273603b475876885469 # 2024-12-31
+        uses: lfreleng-actions/path-check-action@aa7dabfa92e50e31a0f091dd3e2741692e8dde07 # v0.1.5
         with:
           path: "docs/requirements.txt"
 
       - name: "Check for TOX configuration"
         id: tox-ini
         # yamllint disable-line rule:line-length
-        uses: os-climate/osc-github-devops/.github/actions/path-check-action@78a987dfd2c648faa346e273603b475876885469 # 2024-12-31
+        uses: lfreleng-actions/path-check-action@aa7dabfa92e50e31a0f091dd3e2741692e8dde07 # v0.1.5
         with:
           path: "tox.ini"
 
