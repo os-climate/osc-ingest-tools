@@ -51,7 +51,7 @@ repos:
         types: [yaml]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: aad66557af3b56ba6d4d69cd1b6cba87cef50cbb  # frozen: v0.14.3
+    rev: 488940d9de1b658fac229e34c521d75a6ea476f2  # frozen: v0.14.5
     hooks:
       - id: ruff
         files: ^(src|tests|scripts)/.+\.py$
@@ -102,7 +102,7 @@ repos:
         args: ["--ignore-words=.codespell"]
 
   - repo: https://github.com/python-jsonschema/check-jsonschema.git
-    rev: 83b816d020105076daac266dbf6bfed199a2da93  # frozen: 0.34.1
+    rev: 16a6ad2fead09286ee6eb6b0a3fab55655a6c22a  # frozen: 0.35.0
     hooks:
       - id: check-github-actions
       - id: check-github-workflows
@@ -117,7 +117,7 @@ repos:
       - id: check-readthedocs
 
   - repo: https://github.com/modeseven-lfit/gha-workflow-linter
-    rev: 19d280b4facd814e660873ce738e09da457eb1c0  # frozen: v0.1.8
+    rev: 6e25590048a9b9c49d81656586dd083f47bb4f93  # frozen: v0.1.11
     hooks:
       - id: gha-workflow-linter
         args: [lint, .]
